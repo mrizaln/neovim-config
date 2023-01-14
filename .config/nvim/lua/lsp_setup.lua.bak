@@ -1,0 +1,93 @@
+local nvim_lsp = require("lspconfig")
+
+    -- tell the server the capability of foldingRange
+    -- nvim hasn't added foldingRange to default capabilities, users must add it manually
+--    local capabilities = vim.lsp.protocol.make_client_capabilities()
+--    capabilities.textDocument.foldingRange = {
+--        dynamicRegistration = false,
+--        lineFoldingOnly = true
+--    }
+
+-- Set up lspconfig. (nvim-cmp)
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+
+------------------------------------------------------------------------------------------
+-- there are differences in name used in [lspconfig] and [mason.nvim]
+-- https://github.com/williamboman/mason-lspconfig.nvim/blob/main/doc/server-mapping.md
+-- 
+-- you need to use the name used in lspconfig to configure LSPs here
+-- or you can use [mason-lspconfig.nvim] for easier setup
+------------------------------------------------------------------------------------------
+
+
+-- sumneko_lua (lua-language-server)
+nvim_lsp['sumneko_lua'].setup({
+    capabilities = capabilities,
+    settings = {
+        Lua = {
+            diagnostics = {
+                globals = { 'vim', 'use', 'require' }
+            },
+        --workspace = {
+            -- Make the server aware of Neovim runtime files
+        --library = {[vim.fn.expand('$VIMRUNTIME/lua')] = true, [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true}
+    --}
+        }
+    }
+})
+
+
+-- ccls (C, C++)
+-- nvim_lsp['ccls'].setup({
+--     capabilities = capabilities,
+--     -- root_dir = lsp.util.root_pattern('main.cpp', '.git'),
+--     -- single_file_support = true
+-- })
+-- vim.cmd[[let g:cmake_link_compile_commands = 1]]
+
+
+-- clangd (C, C++)
+nvim_lsp['clangd'].setup({
+    capabilities = capabilities,
+    -- root_dir = lsp.util.root_pattern('main.cpp', '.git'),
+    -- single_file_support = true
+})
+vim.cmd[[let g:cmake_link_compile_commands = 1]]
+
+
+-- rust_analyzer
+nvim_lsp['rust_analyzer'].setup({
+    capabilities = capabilities,
+    -- on_attach = function(client) require('completion').on_attach(client) end,
+    settings = {
+        ["rust-analyzer"] = {
+            imports = {
+                granularity = {
+                    group = "module",
+                },
+                prefix = "self",
+            },
+            cargo = {
+                buildScripts = {
+                    enable = true,
+                },
+            },
+            procMacro = {
+                enable = true
+            },
+        }
+    }
+})
+
+
+-- typescript-language-server (tsserver) (javascript and typescript)
+nvim_lsp['tsserver'].setup({
+    capabilities = capabilities,
+})
+
+
+-- pyright (python lsp)
+nvim_lsp['pyright'].setup({
+    capabilities = capabilities,
+})
