@@ -20,10 +20,8 @@ local function createConfiguration(lang, opts)
 end
 
 -- parse launch.json file
-function M.loadLaunchJSON(workingPath)
-    if workingPath == nil then
-        workingPath = vim.fn.getcwd()
-    end
+function M.loadLaunchJSON()
+    local workingPath = vim.lsp.buf.list_workspace_folders()[1]
     local file = workingPath .. "/launch.json"
 
     -- check file exist

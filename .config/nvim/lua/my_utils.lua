@@ -7,14 +7,12 @@
 _G.myUtils = {}
 
 local utils = {
-    general = require('utils/general'),
-    dap = require('utils/dap-util'),
+	general = require("utils/general"),
+	dap = require("utils/dap-util"),
 }
 
-for _,v in pairs(utils) do
-    for kk,vv in pairs(v) do
-        _G.myUtils[kk] = vv
-    end
+for _, v in pairs(utils) do
+	for kk, vv in pairs(v) do
+		_G.myUtils[kk] = vv
+	end
 end
-
-
