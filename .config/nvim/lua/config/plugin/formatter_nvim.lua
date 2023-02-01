@@ -2,6 +2,9 @@
 local util = require("formatter.util")
 
 -- local clangformat = require("formatter.defaults.clangformat")    -- default
+
+-- use project specific format if [.clang-format] of [_clang-format] is available
+-- else use [$HOME/.config/nvim/_clang-format]
 local clangformat = function()
 	local workspaces = vim.lsp.buf.list_workspace_folders()
 	if #workspaces >= 1 then
@@ -94,5 +97,5 @@ require("formatter").setup({
 --     augroup END
 -- ]])
 
-vim.cmd([[nnoremap <silent> <leader>f :Format<CR>]])
-vim.cmd([[nnoremap <silent> <leader>F :FormatWrite<CR>]])
+vim.cmd([[nnoremap <silent> <leader>ff :Format<CR>]])
+vim.cmd([[nnoremap <silent> <leader>fw :FormatWrite<CR>]])

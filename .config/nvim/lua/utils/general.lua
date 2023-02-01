@@ -1,12 +1,10 @@
-local M = {}
-
 -- check if a table is used as an array
-function M.isArray(tab)
+local function isArray(tab)
 	return #tab > 0 and next(tab, #tab) == nil
 end
 
 -- print array recursively
-function M.printArrayRecurse(prelude, arr, level)
+local function printArrayRecurse(prelude, arr, level)
 	if level == nil then
 		level = 0
 	end
@@ -17,10 +15,10 @@ function M.printArrayRecurse(prelude, arr, level)
 	if arr ~= nil then
 		for _, e in pairs(arr) do
 			if type(e) == "table" then
-				if M.isArray(e) then
-					M.printArrayRecurse(indent, e, level + 1)
+				if isArray(e) then
+					printArrayRecurse(indent, e, level + 1)
 				else
-					M.printTableRecurse(indent, e, level + 1)
+					printTableRecurse(indent, e, level + 1)
 				end
 			else
 				print(indent .. " (" .. type(e) .. ") " .. tostring(e) .. ",")
@@ -36,7 +34,7 @@ function M.printArrayRecurse(prelude, arr, level)
 end
 
 -- return a string, every element will be converted using built-in tostring() function
-function M.arrayToStringSimple(arr, sep, prelude, ending)
+local function arrayToStringSimple(arr, sep, prelude, ending)
 	local str = prelude
 	for _, e in pairs(arr) do
 		str = str .. tostring(e) .. sep
@@ -45,12 +43,12 @@ function M.arrayToStringSimple(arr, sep, prelude, ending)
 end
 
 -- print array, element by element (converted using built-in tostring() function)
-function M.printArray(arr, sep, prelude, ending)
-	print(M.arrayToStringSimple(arr, sep, prelude, ending))
+local function printArray(arr, sep, prelude, ending)
+	print(arrayToStringSimple(arr, sep, prelude, ending))
 end
 
 -- print table recursively
-function M.printTableRecurse(prelude, tab, level)
+local function printTableRecurse(prelude, tab, level)
 	if level == nil then
 		level = 0
 	end
@@ -61,10 +59,10 @@ function M.printTableRecurse(prelude, tab, level)
 	if tab ~= nil then
 		for k, e in pairs(tab) do
 			if type(e) == "table" then
-				if M.isArray(e) then
-					M.printArrayRecurse(indent .. k .. " : ", e, level + 1)
+				if isArray(e) then
+					printArrayRecurse(indent .. k .. " : ", e, level + 1)
 				else
-					M.printTableRecurse(indent .. k .. " : ", e, level + 1)
+					printTableRecurse(indent .. k .. " : ", e, level + 1)
 				end
 			else
 				print(indent .. k .. " : (" .. type(e) .. ") " .. tostring(e) .. ",")
@@ -79,27 +77,51 @@ function M.printTableRecurse(prelude, tab, level)
 	print(ending)
 end
 
+local function formatColor(str)
+	return "\27[01;30;46m" .. str .. "\27[00m"
+end
+
 -- if you don't know what kind of type you want to print, use this function
 -- this function will print recursively if the type is a table
--- you should pass the argument as a new table
--- like this : printIDK({arg1, arg2}) or printIDK({name1=arg1, name2=arg2})
-function M.printIDK(args)
+-- you should pass the argument as a new table if you want to print multiple things
+-- like this : betterPrint({arg1, arg2}) or betterPrint({name1=arg1, name2=arg2})
+local function betterPrint(args, color)
+	color = color or false
+	args = args or {}
+	if type(args) ~= "table" then
+		print(args)
+		return
+	end
+
+	-- print recursively if table
 	local level = 0
 	local idk = args
 	for name, tab in pairs(idk) do
 		if type(tab) == "table" then
-			if M.isArray(tab) then
-				M.printArrayRecurse(name .. " : ", tab, level)
+			if isArray(tab) then
+				if color then
+					printArrayRecurse(name .. " (" .. formatColor("array") .. ") : ", tab, level)
+				else
+					printArrayRecurse(name .. " (array) : ", tab, level)
+				end
 			else
-				M.printTableRecurse(name .. " : ", tab, level)
+				if color then
+					printTableRecurse(name .. " (" .. formatColor("table") .. ") : ", tab, level)
+				else
+					printTableRecurse(name .. " (table) : ", tab, level)
+				end
 			end
 		else
-			print(name .. " : (" .. type(tab) .. ") ", tab)
+			if color then
+				print(name .. " (" .. formatColor(type(tab)) .. ") : ", tab)
+			else
+				print(name .. " (" .. type(tab) .. ") : ", tab)
+			end
 		end
 	end
 end
 
-function M.fileExist(file)
+local function fileExist(file)
 	-- check file exist
 	local file_handler = io.open(file, "r")
 	if file_handler == nil then
@@ -110,7 +132,7 @@ function M.fileExist(file)
 	end
 end
 
-function M.splitString(inputstr, sep)
+local function splitString(inputstr, sep)
 	if sep == nil then
 		sep = "%s"
 	end
@@ -121,4 +143,16 @@ function M.splitString(inputstr, sep)
 	return t
 end
 
-return M
+local function get_nvim_version()
+  local actual_ver = vim.version()
+
+  local nvim_ver_str = string.format("%d.%d.%d", actual_ver.major, actual_ver.minor, actual_ver.patch)
+  return nvim_ver_str
+end
+
+return {
+	print = betterPrint,
+	fileExist = fileExist,
+	splitString = splitString,
+    get_nvim_version = get_nvim_version,
+}

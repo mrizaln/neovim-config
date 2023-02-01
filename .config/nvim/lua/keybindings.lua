@@ -14,8 +14,9 @@ local function vkeymap(key, map, opts)
 end
 
 -- save on ctrl+s
-vim.api.nvim_set_keymap("n", "<c-s>", ":w<CR>", {})
-vim.api.nvim_set_keymap("i", "<c-s>", "<Esc>:w<CR>a", {})
+vim.api.nvim_set_keymap("n", "<c-s>", ":w<cr>", {})
+vim.api.nvim_set_keymap("i", "<c-s>", "<esc>:w<cr>a", {})
+vim.api.nvim_set_keymap("v", "<c-s>", "<esc>:w<cr>gv", {})
 
 local options = { noremap = true }
 
@@ -38,5 +39,5 @@ nkeymap("<A-k>", "<c-w>K", options)
 nkeymap("<A-l>", "<c-w>L", options)
 
 --
--- lsp keybindings       : [~/.config/nvim/lua/lsp_setup.lua]
--- per plugin keybindings: [~/.config/nvim/lua/plugins.lua]
+-- lsp keybindings       : [~/.config/nvim/lua/config/lsp/keybindings.lua]
+-- per plugin keybindings: [~/.config/nvim/lua/plugins.lua] inside their own [config] field

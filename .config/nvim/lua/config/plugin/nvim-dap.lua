@@ -1,3 +1,5 @@
+-- require("dap.ext.vscode").load_launchjs(nil, {})
+
 local keymap = vim.api.nvim_set_keymap
 
 local opts = { noremap = true }

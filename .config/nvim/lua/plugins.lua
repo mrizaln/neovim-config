@@ -11,12 +11,18 @@ require("packer").startup(function()
 
 	-- quality of life --
 	---------------------
+    -- neodev (Neovim setup for init.lua)
+    use{
+        "folke/neodev.nvim",
+        -- config: "~/.config/nvim/lua/config/plugin/neodev_nvim"
+    }
+
 	-- alpha (start screen)
 	use({
 		"goolord/alpha-nvim",
 		requires = { "nvim-tree/nvim-web-devicons" },
 		config = function()
-			require("plugin-configs/alpha-nvim")
+			require("config/plugin/alpha-nvim")
 		end,
 	})
 
@@ -24,7 +30,7 @@ require("packer").startup(function()
 	use({
 		"voldikss/vim-floaterm",
 		config = function()
-			require("plugin-configs/vim-floaterm")
+			require("config/plugin/vim-floaterm")
 		end,
 	})
 
@@ -33,14 +39,14 @@ require("packer").startup(function()
 		"nvim-tree/nvim-tree.lua",
 		requires = { "nvim-tree/nvim-web-devicons" },
 		config = function()
-			require("plugin-configs/nvim-tree")
+			require("config/plugin/nvim-tree")
 		end,
 	})
 
 	--[[ use {                           -- alternative to nvim-tree --
         'preservim/nerdtree',
         requires = { 'ryanoasis/vim-devicons' },
-        config = function() require("plugin-configs/nerdtree") end
+        config = function() require("config/plugin/nerdtree") end
     } --]]
 
 	-- telescope (similar to fzf?)
@@ -48,7 +54,16 @@ require("packer").startup(function()
 		"nvim-telescope/telescope.nvim",
 		requires = { "nvim-lua/plenary.nvim" },
 		config = function()
-			require("plugin-configs/telescope_nvim")
+			require("config/plugin/telescope_nvim")
+		end,
+	})
+
+	-- lualine.nvim (status line prettifier)
+	use({
+		"nvim-lualine/lualine.nvim",
+		requires = { "kyazdani42/nvim-web-devicons", opt = true },
+		config = function()
+			require("config/plugin/lualine_nvim")
 		end,
 	})
 
@@ -57,7 +72,7 @@ require("packer").startup(function()
 		"romgrk/barbar.nvim",
 		wants = { "nvim-tree/nvim-web-devicons" },
 		config = function()
-			require("plugin-configs/barbar_nvim")
+			require("config/plugin/barbar_nvim")
 		end,
 	})
 
@@ -65,7 +80,7 @@ require("packer").startup(function()
 	use({
 		"lukas-reineke/indent-blankline.nvim",
 		config = function()
-			require("plugin-configs/indent-blankline_nvim")
+			require("config/plugin/indent-blankline_nvim")
 		end,
 	})
 
@@ -73,7 +88,7 @@ require("packer").startup(function()
 	use({
 		"p00f/nvim-ts-rainbow",
 		config = function()
-			require("plugin-configs/nvim-ts-rainbow")
+			require("config/plugin/nvim-ts-rainbow")
 		end,
 	})
 	---------------------
@@ -93,43 +108,60 @@ require("packer").startup(function()
 	use({
 		"nvim-treesitter/nvim-treesitter",
 		config = function()
-			require("plugin-configs/nvim-treesitter")
+			require("config/plugin/nvim-treesitter")
 		end,
 	})
 
 	-- linter
 	-- use {
 	--     "mfussenegger/nvim-lint",
-	--     config = function() require("plugin-configs/nvim-lint") end,
+	--     config = function() require("config/plugin/nvim-lint") end,
 	-- }
 
 	-- formatter
 	use({
 		"mhartington/formatter.nvim",
-		-- don't lazy loading
+		-- don't lazy loading (actually lazy loading is enough)
 		config = function()
-			require("plugin-configs/formatter_nvim")
+			require("config/plugin/formatter_nvim")
 		end,
 	})
 
 	-- dap
 	use({
 		"mfussenegger/nvim-dap",
-		config = function()
-			require("plugin-configs/nvim-dap")
-		end,
+		-- config = function()
+		-- 	require("config/plugin/nvim-dap")
+		-- end,
 		-- per client config: [~/.config/nvim/lua/dap_setup.lua]
+	})
+
+	-- dap-ui
+	use({
+		"rcarriga/nvim-dap-ui",
+		requires = { "mfussenegger/nvim-dap" },
+		-- config = function()
+		-- 	require("config/plugin/nvim-dap-ui")
+		-- end,
+	})
+
+	-- trouble
+	use({
+		"folke/trouble.nvim",
+		config = function()
+			require("config/plugin/trouble_nvim")
+		end,
 	})
 
 	-- Comment.nvim (commenter)
 	use({
 		"numToStr/Comment.nvim",
 		config = function()
-			require("plugin-configs/Comment_nvim")
+			require("config/plugin/Comment_nvim")
 		end,
 	})
 
-	-- neovim-tasks
+	-- neovim-tasks (cmake, cargo, or add a module yourself)
 	use({
 		"Shatur/neovim-tasks",
 		requires = {
@@ -137,16 +169,23 @@ require("packer").startup(function()
 			"nvim-lua/plenary.nvim",
 		},
 		config = function()
-			require("plugin-configs/neovim-tasks")
+			require("config/plugin/neovim-tasks")
 		end,
 	})
+	-- use({           -- alternative for cmake
+	-- 	"cdelledonne/vim-cmake",
+	--  branch = "78-do-not-escape-paths",
+	-- 	config = function()
+	-- 		require("config/plugin/vim-cmake")
+	-- 	end,
+	-- })
 
 	-- ultisnips (snippets engine)
 	use({
 		"SirVer/ultisnips",
 		requires = { "honza/vim-snippets" },
 		config = function()
-			require("plugin-configs/ultisnips")
+			require("config/plugin/ultisnips")
 		end,
 	})
 
@@ -159,17 +198,18 @@ require("packer").startup(function()
 			"hrsh7th/cmp-path",
 			"hrsh7th/cmp-cmdline",
 			"SirVer/ultisnips", -- required by nvim-cmp
-			"quangnguyen30192/cmp-nvim-ultisnips", -- required by ultisnips
+			"quangnguyen30192/cmp-nvim-ultisnips", -- required by ultisnips on nvim-cmp
 		},
 		config = function()
-			require("plugin-configs/nvim-cmp")
+			require("config/plugin/nvim-cmp")
 		end,
 	})
 
+	-- lsp_signature (show function signature; better than [vim.lsp.buf.signature_help])
 	use({
 		"ray-x/lsp_signature.nvim",
 		-- no lazy loading
-		-- config: [./plugin-configs/lsp_signature_nvim]
+		-- config: [./config/plugin/lsp_signature_nvim]
 	})
 
 	-- coq (completion)
@@ -177,7 +217,7 @@ require("packer").startup(function()
         'ms-jpq/coq_nvim',
         branch = 'coq',
         requires = { 'ms-jpq/coq.artifacts' },
-        -- config = function() require("plugin-configs/coq_nvim") end
+        -- config = function() require("config/plugin/coq_nvim") end
     } --]]
 
 	-- glsl
