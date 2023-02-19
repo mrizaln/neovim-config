@@ -1,10 +1,11 @@
 -- color scheme
 -----------------
 if os.getenv("DISPLAY") == nil then
-    print("Color Scheme is disabled because no DISPLAY found")
-    vim.opt.termguicolors = false
-    vim.cmd [[ colorscheme ron ]]
-    return
+	print("Color Scheme is disabled since no DISPLAY is found")
+	print("DISPLAY: nil")
+	vim.opt.termguicolors = false
+	vim.cmd([[ colorscheme ron ]])
+	return
 end
 
 --vim.cmd [[colorscheme molokai]]
@@ -18,8 +19,8 @@ end
 --vim.cmd [[colorscheme nord]]
 
 --[ sonokai ]--
-vim.cmd [[colorscheme sonokai]]
-vim.cmd [[let g:sonokai_style = 'shusia' "atlantis/andromeda/shusia/maia]]
+vim.cmd([[colorscheme sonokai]])
+vim.cmd([[let g:sonokai_style = 'shusia' "atlantis/andromeda/shusia/maia]])
 --[]--
 
 --[ aurora ]--
@@ -40,5 +41,11 @@ vim.cmd [[let g:sonokai_style = 'shusia' "atlantis/andromeda/shusia/maia]]
 -- vim.api.nvim_set_hl(0, '@field', {fg='#f93393'})
 -- vim.api.nvim_set_hl(0, '@number', {fg='#e933e3'})
 --[]--
+
+--[ gruvbox ]--
+-- vim.o.background = "dark" -- or "light" for light mode
+-- vim.cmd([[colorscheme gruvbox]])
+--[]--
 -----------------
 
+-- vim.cmd([[colorscheme rose-pine]])
