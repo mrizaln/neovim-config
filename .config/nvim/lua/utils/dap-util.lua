@@ -65,12 +65,17 @@ function M.loadLaunchJSON()
         program = program,
         args = args,
         cwd = cwd,
-        stopOnEntry = true,
+        stopOnEntry = false,
     }
     -- local opts = json_tab.configurations[1]
     -- common.printTableRecurse("opts: ", opts)
 
     createConfiguration("cpp", opts)
+
+    _ = io.read()
+
+    -- run dap
+    require('dap').continue()
 end
 
 return M

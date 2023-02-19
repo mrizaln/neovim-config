@@ -3,8 +3,10 @@ local function isArray(tab)
 	return #tab > 0 and next(tab, #tab) == nil
 end
 
+local printArrayRecurse, printTableRecurse
+
 -- print array recursively
-local function printArrayRecurse(prelude, arr, level)
+printArrayRecurse = function(prelude, arr, level)
 	if level == nil then
 		level = 0
 	end
@@ -33,22 +35,8 @@ local function printArrayRecurse(prelude, arr, level)
 	print(ending)
 end
 
--- return a string, every element will be converted using built-in tostring() function
-local function arrayToStringSimple(arr, sep, prelude, ending)
-	local str = prelude
-	for _, e in pairs(arr) do
-		str = str .. tostring(e) .. sep
-	end
-	return string.sub(str, 0, string.len(str) - string.len(sep)) .. ending
-end
-
--- print array, element by element (converted using built-in tostring() function)
-local function printArray(arr, sep, prelude, ending)
-	print(arrayToStringSimple(arr, sep, prelude, ending))
-end
-
 -- print table recursively
-local function printTableRecurse(prelude, tab, level)
+printTableRecurse = function(prelude, tab, level)
 	if level == nil then
 		level = 0
 	end
@@ -75,6 +63,20 @@ local function printTableRecurse(prelude, tab, level)
 		ending = ending:sub(1, #ending - 1)
 	end
 	print(ending)
+end
+
+-- return a string, every element will be converted using built-in tostring() function
+local function arrayToStringSimple(arr, sep, prelude, ending)
+	local str = prelude
+	for _, e in pairs(arr) do
+		str = str .. tostring(e) .. sep
+	end
+	return string.sub(str, 0, string.len(str) - string.len(sep)) .. ending
+end
+
+-- print array, element by element (converted using built-in tostring() function)
+local function printArray(arr, sep, prelude, ending)
+	print(arrayToStringSimple(arr, sep, prelude, ending))
 end
 
 local function formatColor(str)
@@ -144,15 +146,17 @@ local function splitString(inputstr, sep)
 end
 
 local function get_nvim_version()
-  local actual_ver = vim.version()
+	local actual_ver = vim.version() or { major = 0, minor = 0, patch = 0 }
 
-  local nvim_ver_str = string.format("%d.%d.%d", actual_ver.major, actual_ver.minor, actual_ver.patch)
-  return nvim_ver_str
+	local nvim_ver_str = string.format("%d.%d.%d", actual_ver.major, actual_ver.minor, actual_ver.patch)
+	return nvim_ver_str
 end
 
 return {
 	print = betterPrint,
 	fileExist = fileExist,
 	splitString = splitString,
-    get_nvim_version = get_nvim_version,
+	get_nvim_version = get_nvim_version,
+	arrayToStringSimple = arrayToStringSimple,
+    printArray = printArray,
 }
