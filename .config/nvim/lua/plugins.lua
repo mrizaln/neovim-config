@@ -4,18 +4,27 @@ require("packer").startup(function()
 
 	-- colorscheme
 	use("tomasr/molokai")
-	use("dracula/vim")
+	use({ "dracula/vim", as = "dracula-vim-theme" })
 	use("arcticicestudio/nord-vim")
 	use("sainnhe/sonokai")
 	use("ray-x/aurora")
+	use("ellisonleao/gruvbox.nvim")
+	use({ "challenger-deep-theme/vim", as = "challenger-deep-vim-theme" })
+	use({
+		"rose-pine/neovim",
+		as = "rose-pine-vim-theme",
+		-- config = function()
+		-- 	require("config/plugin/rose-pine-vim-theme")
+		-- end,
+	})
 
 	-- quality of life --
 	---------------------
-    -- neodev (Neovim setup for init.lua)
-    use{
-        "folke/neodev.nvim",
-        -- config: "~/.config/nvim/lua/config/plugin/neodev_nvim"
-    }
+	-- neodev (Neovim setup for init.lua)
+	use({
+		"folke/neodev.nvim",
+		-- config: "~/.config/nvim/lua/config/plugin/neodev_nvim"
+	})
 
 	-- alpha (start screen)
 	use({
@@ -210,6 +219,27 @@ require("packer").startup(function()
 		"ray-x/lsp_signature.nvim",
 		-- no lazy loading
 		-- config: [./config/plugin/lsp_signature_nvim]
+	})
+
+	-- symbols-outline
+	use({
+		"simrat39/symbols-outline.nvim",
+		config = function()
+			require("config/plugin/symbols-outline_nvim")
+		end,
+	})
+
+	-- vim-fugitive (git integration)
+	use({
+		"tpope/vim-fugitive",
+	})
+
+	-- gitsigns.nvim
+	use({
+		"lewis6991/gitsigns.nvim",
+		config = function()
+			require("config/plugin/gitsigns_nvim")
+		end,
 	})
 
 	-- coq (completion)

@@ -89,13 +89,5 @@ require("formatter").setup({
 	},
 })
 
--- format after save
--- vim.cmd([[
---     augroup FormatAutogroup
---         autocmd!
---         autocmd BufWritePost * FormatWrite
---     augroup END
--- ]])
-
 vim.cmd([[nnoremap <silent> <leader>ff :Format<CR>]])
 vim.cmd([[nnoremap <silent> <leader>fw :FormatWrite<CR>]])
