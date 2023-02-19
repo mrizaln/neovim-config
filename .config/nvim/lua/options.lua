@@ -11,7 +11,7 @@ vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.expandtab = true            -- convert tab to spaces
 vim.opt.showbreak = '↪'
-vim.opt.wrap = false
+vim.opt.wrap = true
 
 vim.opt.number = true
 -- vim.opt.relativenumber = true
@@ -22,11 +22,16 @@ vim.opt.cursorline = true           -- highlight current line
 vim.opt.ttyfast = true              -- speed up scrolling
 -- vim.opt.spell = true                -- enable spell check
 
--- vim.opt.undofile = true             -- persistent undo, even when file is closed then reopened
+vim.opt.undofile = true             -- persistent undo, even when file is closed then reopened
 
 vim.opt.termguicolors = true
 
+vim.opt.showmode = false
+
 vim.cmd [[set cc=80]]               -- 90 column border
+
+--
+vim.opt.updatetime = 400            -- vim-signify async
 
 -- https://github.com/neovim/neovim/wiki/FAQ#how-to-change-cursor-color-in-the-terminal
 -- vim.cmd([[

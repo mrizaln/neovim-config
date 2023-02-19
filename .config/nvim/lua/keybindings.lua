@@ -18,7 +18,7 @@ vim.api.nvim_set_keymap("n", "<c-s>", ":w<cr>", {})
 vim.api.nvim_set_keymap("i", "<c-s>", "<esc>:w<cr>a", {})
 vim.api.nvim_set_keymap("v", "<c-s>", "<esc>:w<cr>gv", {})
 
-local options = { noremap = true }
+local options = { noremap = true, silent = true }
 
 -- move line or visually selected block
 ikeymap("<A-j>", "<Esc>:m .+1<cr>==gi", options)
@@ -37,6 +37,9 @@ nkeymap("<A-h>", "<c-w>H", options)
 nkeymap("<A-j>", "<c-w>J", options)
 nkeymap("<A-k>", "<c-w>K", options)
 nkeymap("<A-l>", "<c-w>L", options)
+
+-- close quickfix
+nkeymap("<leader>cq", ":ccl<cr>", options)
 
 --
 -- lsp keybindings       : [~/.config/nvim/lua/config/lsp/keybindings.lua]
