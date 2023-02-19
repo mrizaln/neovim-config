@@ -16,7 +16,7 @@ require("mason").setup({
 
 require("mason-lspconfig").setup({
 	ensure_installed = {
-		"sumneko_lua", -- lua
+		"lua_ls", -- lua
 		"clangd", -- C, C++
 		"pyright", -- python (type checker)
 		"rust_analyzer", -- rust
@@ -39,6 +39,11 @@ require("mason-lspconfig").setup_handlers({
 	function(server_name) -- default handler (optional)
 		require("lspconfig")[server_name].setup({
 			capabilites = capabilites,
+            -- settings = {
+            --     completion = {
+            --         callSnippet ="Replace"
+            --     },
+            -- },
 		})
 	end,
 
@@ -47,13 +52,14 @@ require("mason-lspconfig").setup_handlers({
 	["clangd"] = function()
 		local config = require("lspconfig.server_configurations.clangd").default_config
 		config.capabilites = capabilites
-		config.cmd = { "clangd", "--enable-config" }
+		-- config.cmd = { "clangd", "--enable-config" }
+		config.cmd = { "clangd", }
 		require("lspconfig")["clangd"].setup(config)
 	end,
 
 	-- lua
-	["sumneko_lua"] = function()
-		require("lspconfig")["sumneko_lua"].setup({
+	["lua_ls"] = function()
+		require("lspconfig")["lua_ls"].setup({
 			capabilities = capabilites,
 			settings = {
 				Lua = {
