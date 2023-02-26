@@ -41,6 +41,10 @@ nkeymap("<A-l>", "<c-w>L", options)
 -- close quickfix
 nkeymap("<leader>cq", ":ccl<cr>", options)
 
+-- ctrl+backspace and ctlr+delete
+-- vim.api.nvim_set_keymap("i", "<c-BS>", "<c-w>", options)
+vim.api.nvim_set_keymap("i", "<c-Del>", "<cmd>norm! dw<cr>", options)
+
 --
 -- lsp keybindings       : [~/.config/nvim/lua/config/lsp/keybindings.lua]
 -- per plugin keybindings: [~/.config/nvim/lua/plugins.lua] inside their own [config] field

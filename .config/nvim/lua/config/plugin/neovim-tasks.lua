@@ -31,6 +31,6 @@ vim.api.nvim_set_keymap("n", "<leader>cg", ":Task start auto configure<cr>", opt
 vim.api.nvim_set_keymap("n", "<leader>cb", ":Task start auto build<cr>", opts)
 vim.api.nvim_set_keymap("n", "<leader>cc", ":Task start auto clean<cr>", opts)
 vim.api.nvim_set_keymap("n", "<leader>cd", ":Task start auto debug<cr>", opts)
-vim.api.nvim_set_keymap("n", "<leader>cr", ":Task start auto configure<cr>", opts)
+vim.api.nvim_set_keymap("n", "<leader>cr", ":Task start auto run<cr>", opts)
 vim.api.nvim_set_keymap("n", "<leader>ct", ":Task set_module_param auto target<cr>", opts)
 vim.api.nvim_set_keymap("n", "<leader>cT", ":Task set_module_param auto build_type<cr>", opts)

@@ -2,7 +2,8 @@
 require("packer").startup(function()
 	use("wbthomason/packer.nvim")
 
-	-- colorscheme
+	-- colorscheme --
+	-----------------
 	use("tomasr/molokai")
 	use({ "dracula/vim", as = "dracula-vim-theme" })
 	use("arcticicestudio/nord-vim")
@@ -17,6 +18,7 @@ require("packer").startup(function()
 		-- 	require("config/plugin/rose-pine-vim-theme")
 		-- end,
 	})
+	-----------------
 
 	-- quality of life --
 	---------------------
@@ -249,8 +251,11 @@ require("packer").startup(function()
         requires = { 'ms-jpq/coq.artifacts' },
         -- config = function() require("config/plugin/coq_nvim") end
     } --]]
+	---------
 
+	-- other --
+	-----------
 	-- glsl
 	use("tikhomirov/vim-glsl")
-	---------
+	-----------
 end)
