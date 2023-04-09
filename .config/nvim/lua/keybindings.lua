@@ -41,9 +41,23 @@ nkeymap("<A-l>", "<c-w>L", options)
 -- close quickfix
 nkeymap("<leader>cq", ":ccl<cr>", options)
 
+-- reload config
+nkeymap(
+	"<leader>rr",
+	'<cmd>source ~/.config/nvim/init.lua <bar> lua print("config reloaded " .. os.date("(%d/%m/%Y %H:%M:%S)"))<cr>',
+	{}
+)
+
+-- center view
+ikeymap("<c-z>", "<esc>zza", options)
+
 -- ctrl+backspace and ctlr+delete
--- vim.api.nvim_set_keymap("i", "<c-BS>", "<c-w>", options)
+vim.api.nvim_set_keymap("i", "<c-BS>", "<c-w>", options)
 vim.api.nvim_set_keymap("i", "<c-Del>", "<cmd>norm! dw<cr>", options)
+
+-- o and O now create newline without going into insert mode
+-- vim.cmd([[nnoremap o o<Esc>]])
+-- vim.cmd([[nnoremap O O<Esc>]])
 
 --
 -- lsp keybindings       : [~/.config/nvim/lua/config/lsp/keybindings.lua]

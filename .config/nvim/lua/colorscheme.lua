@@ -19,8 +19,9 @@ end
 --vim.cmd [[colorscheme nord]]
 
 --[ sonokai ]--
+-----------------
+vim.cmd([[let g:sonokai_style = 'andromeda' "atlantis/andromeda/shusia/maia]])
 vim.cmd([[colorscheme sonokai]])
-vim.cmd([[let g:sonokai_style = 'shusia' "atlantis/andromeda/shusia/maia]])
 --[]--
 
 --[ aurora ]--
@@ -49,3 +50,22 @@ vim.cmd([[let g:sonokai_style = 'shusia' "atlantis/andromeda/shusia/maia]])
 -----------------
 
 -- vim.cmd([[colorscheme rose-pine]])
+
+--[ tokyonight ]--
+------------------
+-- vim.cmd([[colorscheme tokyonight]])
+-- vim.cmd([[colorscheme tokyonight-night]])
+-- vim.cmd([[colorscheme tokyonight-day]])
+-- vim.cmd([[colorscheme tokyonight-storm]])
+-- vim.cmd([[colorscheme tokyonight-moon]])
+------------------
+
+--[ onedark ]--
+---------------
+-- local styles = {"dark", "darker", "cool", "deep", "warm", "warmer" }
+-- require("onedark").setup({
+-- 	style = "darker",
+-- })
+-- require("onedark").load()
+-- vim.cmd([[colorscheme onedark]])
+---------------

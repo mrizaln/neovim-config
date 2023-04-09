@@ -4,18 +4,20 @@ require("packer").startup(function()
 
 	-- colorscheme --
 	-----------------
+	use("arcticicestudio/nord-vim")
+	use("ellisonleao/gruvbox.nvim")
+	use("folke/tokyonight.nvim")
+	use("navarasu/onedark.nvim")
+	use("ray-x/aurora")
+	use("sainnhe/sonokai")
 	use("tomasr/molokai")
 	use({ "dracula/vim", as = "dracula-vim-theme" })
-	use("arcticicestudio/nord-vim")
-	use("sainnhe/sonokai")
-	use("ray-x/aurora")
-	use("ellisonleao/gruvbox.nvim")
 	use({ "challenger-deep-theme/vim", as = "challenger-deep-vim-theme" })
 	use({
 		"rose-pine/neovim",
 		as = "rose-pine-vim-theme",
 		-- config = function()
-		-- 	require("config/plugin/rose-pine-vim-theme")
+		--     require("config/plugin/rose-pine-vim-theme")
 		-- end,
 	})
 	-----------------
@@ -102,6 +104,23 @@ require("packer").startup(function()
 			require("config/plugin/nvim-ts-rainbow")
 		end,
 	})
+
+	-- nvim-autopairs
+	use({
+		"windwp/nvim-autopairs",
+		config = function()
+			require("nvim-autopairs").setup({})
+		end,
+	})
+
+	-- neoscroll.nvim (smooth scrolling)
+	-- use({
+	-- 	"karb94/neoscroll.nvim",
+	-- 	config = function()
+	-- 		require("config/plugin/neoscroll_nvim")
+	-- 	end,
+	-- })
+
 	---------------------
 
 	-- IDE --
@@ -142,7 +161,7 @@ require("packer").startup(function()
 	use({
 		"mfussenegger/nvim-dap",
 		-- config = function()
-		-- 	require("config/plugin/nvim-dap")
+		--     require("config/plugin/nvim-dap")
 		-- end,
 		-- per client config: [~/.config/nvim/lua/dap_setup.lua]
 	})
@@ -152,7 +171,7 @@ require("packer").startup(function()
 		"rcarriga/nvim-dap-ui",
 		requires = { "mfussenegger/nvim-dap" },
 		-- config = function()
-		-- 	require("config/plugin/nvim-dap-ui")
+		--     require("config/plugin/nvim-dap-ui")
 		-- end,
 	})
 
@@ -184,11 +203,11 @@ require("packer").startup(function()
 		end,
 	})
 	-- use({           -- alternative for cmake
-	-- 	"cdelledonne/vim-cmake",
+	--     "cdelledonne/vim-cmake",
 	--  branch = "78-do-not-escape-paths",
-	-- 	config = function()
-	-- 		require("config/plugin/vim-cmake")
-	-- 	end,
+	--     config = function()
+	--         require("config/plugin/vim-cmake")
+	--     end,
 	-- })
 
 	-- ultisnips (snippets engine)
@@ -232,9 +251,9 @@ require("packer").startup(function()
 	})
 
 	-- vim-fugitive (git integration)
-	use({
-		"tpope/vim-fugitive",
-	})
+	-- use({
+	-- 	"tpope/vim-fugitive",
+	-- })
 
 	-- gitsigns.nvim
 	use({
@@ -242,6 +261,12 @@ require("packer").startup(function()
 		config = function()
 			require("config/plugin/gitsigns_nvim")
 		end,
+	})
+
+	-- git diff tool (diffview.nvim)
+	use({
+		"sindrets/diffview.nvim",
+		requires = "nvim-lua/plenary.nvim",
 	})
 
 	-- coq (completion)
@@ -257,5 +282,15 @@ require("packer").startup(function()
 	-----------
 	-- glsl
 	use("tikhomirov/vim-glsl")
+
+	use({
+		"iamcco/markdown-preview.nvim",
+		run = function()
+			vim.fn["mkdp#util#install"]()
+		end,
+		config = function()
+			require("config/plugin/markdown-preview_nvim")
+		end,
+	})
 	-----------
 end)

@@ -1,28 +1,29 @@
 -- treesitter
 ----------------
-local configs = require'nvim-treesitter.configs'
-configs.setup {
-    ensure_installed = {
-        'bash',
-        'c',
-        'cmake',
-        'cpp',
-        'glsl',
-        'java',
-        'javascript',
-        'lua',
-        'python',
-        'typescript',
-        'vim'
-    },
-    auto_install = true,
-    highlight = {                           -- enable highlighting
-        enable = true,
-    },
-    --indent = {
-    --    enable = true,                     -- default is disabled anyways
-    --}
-}
+local configs = require("nvim-treesitter.configs")
+configs.setup({
+	ensure_installed = {
+		"bash",
+		"c",
+		"cmake",
+		"cpp",
+		"glsl",
+		"java",
+		"javascript",
+		"lua",
+		"python",
+		"sql",
+		"typescript",
+		"vim",
+	},
+	auto_install = true,
+	highlight = { -- enable highlighting
+		enable = true,
+	},
+	--indent = {
+	--    enable = true,                     -- default is disabled anyways
+	--}
+})
 ----------------
 
 --[[ require'nvim-treesitter.configs'.setup {
@@ -67,3 +68,22 @@ configs.setup {
     additional_vim_regex_highlighting = false,
   },
 } --]]
+
+--
+--------------------------------[ other ]--------------------------------
+
+-- local parser_mapping = require("nvim-treesitter.parsers").filetype_to_parsername
+-- parser_mapping.xml = "html" -- map the html parser to be used when using xml files
+
+-- local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+-- parser_config.xml = {
+-- 	install_info = {
+-- 		url = "https://github.com/lucascool12/tree-sitter-xml.git", -- local path or git repo
+-- 		files = { "src/parser.c" }, -- note that some parsers also require src/scanner.c or src/scanner.cc
+-- 		-- optional entries:
+-- 		branch = "main", -- default branch in case of git repo if different from master
+-- 		generate_requires_npm = false, -- if stand-alone parser without npm dependencies
+-- 		requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
+-- 	},
+-- 	-- filetype = "xml", -- if filetype does not match the parser name
+-- }

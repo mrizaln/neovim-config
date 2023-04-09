@@ -8,11 +8,12 @@ require("my_utils") -- must be first; some config use my_utils functionalities
 if vim.loop.os_uname().sysname ~= "Linux" then
 	print("It appears that you are not using Linux as your system")
 	print("The configuration is developed for use in Linux environment (Fedora)")
-    print("It probably works for other Unix-based or Unix-like OS")
-    print("Expect problems")
+	print("It probably works for other Unix-based or Unix-like OS")
+	print("Expect problems")
 	return
 end
 
+-- expect nvim version
 local expected_version = { major = 0, minor = 8, patch = 2 }
 local nvim_version = vim.version() or { major = 0, minor = 0, patch = 0 }
 if nvim_version.major < expected_version.major or nvim_version.minor < expected_version.minor then
@@ -33,12 +34,14 @@ print("Your Neovim version: " .. nvim_version.major .. "." .. nvim_version.minor
 
 -- load main configurations
 require("options")
-require("colorscheme")
-require("keybindings") -- global keybinds
-require("autocommands")
 require("plugins")
+require("colorscheme")
+
 require("lsp_setup")
 require("dap_setup")
+
+require("keybindings") -- global keybinds
+require("autocommands")
 
 --vim.cmd [[:COQnow -s]]
 
@@ -58,9 +61,9 @@ local function open_nvim_tree(data)
 	end
 
 	-- open the tree, find the file but don't focus it
-	require("nvim-tree.api").tree.toggle({ focus = false, find_file = false })
-    -- vim.cmd([[SymbolsOutline]])     -- open symbols outline on the right (will focus window)
-    -- vim.cmd([[winc h]])             -- immediately go back to left
+	-- require("nvim-tree.api").tree.toggle({ focus = false, find_file = false })
+	-- vim.cmd([[SymbolsOutline]])     -- open symbols outline on the right (will focus window)
+	-- vim.cmd([[winc h]])             -- immediately go back to left
 	-- vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":SymbolsOutline<cr><cr>", true, false, true), "n", true)
 end
 vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })

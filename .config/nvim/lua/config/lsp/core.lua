@@ -39,11 +39,11 @@ require("mason-lspconfig").setup_handlers({
 	function(server_name) -- default handler (optional)
 		require("lspconfig")[server_name].setup({
 			capabilites = capabilites,
-            -- settings = {
-            --     completion = {
-            --         callSnippet ="Replace"
-            --     },
-            -- },
+			-- settings = {
+			--     completion = {
+			--         callSnippet ="Replace"
+			--     },
+			-- },
 		})
 	end,
 
@@ -53,7 +53,7 @@ require("mason-lspconfig").setup_handlers({
 		local config = require("lspconfig.server_configurations.clangd").default_config
 		config.capabilites = capabilites
 		-- config.cmd = { "clangd", "--enable-config" }
-		config.cmd = { "clangd", }
+		config.cmd = { "clangd" }
 		require("lspconfig")["clangd"].setup(config)
 	end,
 
@@ -67,12 +67,15 @@ require("mason-lspconfig").setup_handlers({
 						globals = { "vim", "use", "require" },
 					},
 					workspace = {
-					    -- Make the server aware of Neovim runtime files
-					    library = {[vim.fn.expand('$VIMRUNTIME/lua')] = true, [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true}
+						-- Make the server aware of Neovim runtime files
+						library = {
+							[vim.fn.expand("$VIMRUNTIME/lua")] = true,
+							[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
+						},
 					},
-                    completion = {
-                        callSnippet = "Replace"
-                    },
+					completion = {
+						callSnippet = "Replace",
+					},
 				},
 			},
 		})
