@@ -1,9 +1,7 @@
 -- Utilities for creating configurations
 local util = require("formatter.util")
 
--- local clangformat = require("formatter.defaults.clangformat")    -- default
-
--- use project specific format if [.clang-format] of [_clang-format] is available
+-- use project specific format if [.clang-format] or [_clang-format] is available
 -- else use [$HOME/.config/nvim/_clang-format]
 local clangformat = function()
 	local style_file = nil
@@ -29,8 +27,12 @@ local clangformat = function()
 	end
 
 	if style_file == nil then
-		print("No clang_format found, use defaults")
-		print("Usually here: " .. os.getenv("HOME") .. "/.config/nvim/_clang-format")
+		print("No clang-format configuration found, use defaults")
+		print(
+			"Nvim global clang-format configuration usually here: "
+				.. os.getenv("HOME")
+				.. "/.config/nvim/_clang-format"
+		)
 		return (require("formatter.defaults.clangformat"))()
 	else
 		return {
@@ -48,8 +50,6 @@ end
 
 -- local eslint_d = require("formatter.defaults.eslint_d")
 
-local rustfmt = require("formatter.filetypes.rust").rustfmt
-
 local prettier = function()
 	local _prettier = require("formatter.filetypes.markdown").prettier()
 
@@ -66,7 +66,8 @@ require("formatter").setup({
 	log_level = vim.log.levels.WARN,
 	-- All formatter configurations are opt-in
 	filetype = {
-		-- Formatter configurations for filetype "lua" go here
+		--[[
+        -- Formatter configurations for filetype "lua" go here
 		-- and will be executed in order
 		lua = {
 			-- "formatter.filetypes.lua" defines default configurations for the
@@ -95,6 +96,9 @@ require("formatter").setup({
 				}
 			end,
 		},
+        ]]
+
+		lua = require("formatter.filetypes.lua").stylua,
 
 		c = clangformat,
 		cpp = clangformat,
@@ -105,7 +109,7 @@ require("formatter").setup({
 
 		python = require("formatter.filetypes.python").black,
 
-		rust = rustfmt,
+		rust = require("formatter.filetypes.rust").rustfmt,
 
 		markdown = prettier,
 
@@ -132,6 +136,7 @@ vim.cmd([[
         \'lua' : 1,
         \'markdown' : 1,
         \'python' : 0,
+        \'rust' : 1,
         \'other' : 0,
     \}
 ]])

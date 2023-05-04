@@ -5,9 +5,8 @@
 -- https://github.com/Valloric/YouCompleteMe
 -- https://github.com/nvim-lua/completion-nvim
 
-vim.cmd [[let g:UltiSnipsExpandTrigger="<tab>"]]
-vim.cmd [[let g:UltiSnipsJumpForwardTrigger="<cr>"]]
-vim.cmd [[let g:UltiSnipsJumpBackwardTrigger="<c-z>"]]
+vim.cmd([[let g:UltiSnipsExpandTrigger="<tab>"]])
+vim.cmd([[let g:UltiSnipsJumpForwardTrigger="<c-j>"]]) -- <c-j>
+vim.cmd([[let g:UltiSnipsJumpBackwardTrigger="<c-k>"]]) -- <c-k>
 
-vim.cmd [[let g:UltiSnipsEditSplit="vertical"]]     --If you want :UltiSnipsEdit to split your window.
-
+vim.cmd([[let g:UltiSnipsEditSplit="vertical"]]) --If you want :UltiSnipsEdit to split your window.

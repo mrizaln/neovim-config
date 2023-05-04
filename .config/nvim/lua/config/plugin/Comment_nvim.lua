@@ -74,4 +74,6 @@ require("Comment").setup({
 
 -- comment      // see Comment.nvim plugin
 vim.api.nvim_set_keymap("n", "<c-_>", "gcc", { noremap = false })
+vim.api.nvim_set_keymap("i", "<c-_>", "<esc>gcc", { noremap = false })
+vim.api.nvim_set_keymap("v", "<c-_>", "gc", { noremap = false })
 vim.api.nvim_set_keymap("v", "<c-_>", "gc", { noremap = false })

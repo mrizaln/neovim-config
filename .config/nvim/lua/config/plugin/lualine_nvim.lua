@@ -1,5 +1,20 @@
+local function wordAndCharCount()
+	local count = vim.fn.wordcount()
+	return "w:" .. count.words .. "|c:" .. count.chars
+end
+
 require("lualine").setup({
-	-- options = { theme = "onedark" },
+	options = {
+		globalstatus = true, -- works only in neovim 0.7 and higher
+	},
+	sections = {
+		-- lualine_a = { "mode" },
+		-- lualine_b = { "branch", "diff", "diagnostics" },
+		-- lualine_c = { "filename" },
+		-- lualine_x = { "encoding", "fileformat", "filetype" },
+		lualine_y = { "progress", wordAndCharCount },
+		-- lualine_z = { "location" },
+	},
 })
 
 -- [ default configuration ] --
