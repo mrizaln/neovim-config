@@ -27,8 +27,8 @@ if nvim_version.major < expected_version.major or nvim_version.minor < expected_
 			.. "."
 			.. expected_version.patch
 	)
+	print("Your Neovim version: " .. nvim_version.major .. "." .. nvim_version.minor .. "." .. nvim_version.patch)
 end
-print("Your Neovim version: " .. nvim_version.major .. "." .. nvim_version.minor .. "." .. nvim_version.patch)
 
 -- print("DISPLAY: "..tostring(os.getenv("DISPLAY")))
 
@@ -44,26 +44,3 @@ require("keybindings") -- global keybinds
 require("autocommands")
 
 --vim.cmd [[:COQnow -s]]
-
--- open nvim-tree at startup
-local function open_nvim_tree(data)
-	-- buffer is a real file on the disk
-	local real_file = vim.fn.filereadable(data.file) == 1
-
-	-- buffer is a [No Name]
-	local no_name = data.file == "" and vim.bo[data.buf].buftype == ""
-
-	if not real_file and no_name then
-		-- vim.cmd([[wincmd l]])
-		vim.cmd([[Alpha]])
-		require("nvim-tree.api").tree.toggle({ focus = false, find_file = false })
-		return
-	end
-
-	-- open the tree, find the file but don't focus it
-	-- require("nvim-tree.api").tree.toggle({ focus = false, find_file = false })
-	-- vim.cmd([[SymbolsOutline]])     -- open symbols outline on the right (will focus window)
-	-- vim.cmd([[winc h]])             -- immediately go back to left
-	-- vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":SymbolsOutline<cr><cr>", true, false, true), "n", true)
-end
-vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
