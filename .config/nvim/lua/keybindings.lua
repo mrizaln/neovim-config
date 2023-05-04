@@ -55,6 +55,12 @@ ikeymap("<c-z>", "<esc>zza", options)
 vim.api.nvim_set_keymap("i", "<c-BS>", "<c-w>", options)
 vim.api.nvim_set_keymap("i", "<c-Del>", "<cmd>norm! dw<cr>", options)
 
+-- yank then search
+vkeymap("/", 'y/<c-r>"<cr>', options)
+
+-- search and replace currently selected text
+vkeymap("r", [[y:%s/<C-R>=escape(@",'/\')<CR>/<C-R>=escape('', '/')<CR>/g<Left><Left>]], options)
+
 -- o and O now create newline without going into insert mode
 -- vim.cmd([[nnoremap o o<Esc>]])
 -- vim.cmd([[nnoremap O O<Esc>]])
