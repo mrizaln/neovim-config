@@ -23,6 +23,7 @@ vim.opt.clipboard = "unnamedplus" -- use system clipboard
 vim.opt.cursorline = true -- highlight current line
 vim.opt.ttyfast = true -- speed up scrolling
 -- vim.opt.spell = true                -- enable spell check
+vim.opt.spelloptions = "camel"
 
 vim.opt.undofile = true -- persistent undo, even when file is closed then reopened
 
@@ -42,9 +43,9 @@ vim.opt.updatetime = 400 -- vim-signify async
 --
 ------------[ folding ]------------
 -- vim.opt.foldmethod = "expr"
--- vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
 -- vim.opt.foldenable = false      -- Disable folding at startup.
-vim.opt.foldmethod = "manual"
+-- vim.opt.foldmethod = "manual"
 
 -- generate compile_commands.json everytine cmake called
 vim.cmd([[let g:cmake_link_compile_commands = 1]])
