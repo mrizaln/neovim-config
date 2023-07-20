@@ -56,10 +56,24 @@ vim.api.nvim_set_keymap("i", "<c-BS>", "<c-w>", options)
 vim.api.nvim_set_keymap("i", "<c-Del>", "<cmd>norm! dw<cr>", options)
 
 -- yank then search
-vkeymap("/", 'y/<c-r>"<cr>', options)
+vkeymap("/", 'y/<c-r>"<cr>N', { noremap = true })
 
 -- search and replace currently selected text
-vkeymap("r", [[y:%s/<C-R>=escape(@",'/\')<CR>/<C-R>=escape('', '/')<CR>/g<Left><Left>]], options)
+vkeymap(
+	"<leader>r",
+	[[ygv*N<esc>:%s/\zs<C-R>=escape(@",'/\')<CR>\ze/<C-R>=escape('', '/')<CR>/g<Left><Left>]],
+	{ noremap = true }
+)
+vkeymap(
+	"<leader>i",
+	[[ygv*N<esc>:%s/\ze<C-R>=escape(@",'/\')<CR>/<C-R>=escape('', '/')<CR>/g<Left><Left>]],
+	{ noremap = true }
+)
+vkeymap(
+	"<leader>a",
+	[[ygv*N<esc>:%s/<C-R>=escape(@",'/\')<CR>\zs/<C-R>=escape('', '/')<CR>/g<Left><Left>]],
+	{ noremap = true }
+)
 
 -- o and O now create newline without going into insert mode
 -- vim.cmd([[nnoremap o o<Esc>]])
