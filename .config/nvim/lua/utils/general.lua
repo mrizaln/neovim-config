@@ -152,11 +152,21 @@ local function get_nvim_version()
 	return nvim_ver_str
 end
 
+local function isInTable(value, array)
+	for _, v in ipairs(array) do
+		if v == value then
+			return true
+		end
+	end
+	return false
+end
+
 return {
 	print = betterPrint,
 	fileExist = fileExist,
 	splitString = splitString,
 	get_nvim_version = get_nvim_version,
 	arrayToStringSimple = arrayToStringSimple,
-    printArray = printArray,
+	printArray = printArray,
+	isInTable = isInTable,
 }
