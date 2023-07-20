@@ -20,11 +20,12 @@ end
 
 --[ sonokai ]--
 -----------------
-vim.cmd([[let g:sonokai_style = 'andromeda' "atlantis/andromeda/shusia/maia]])
-vim.cmd([[colorscheme sonokai]])
---[]--
+-- vim.cmd([[let g:sonokai_style = 'atlantis' "atlantis/andromeda/shusia/maia]])
+-- vim.cmd([[colorscheme sonokai]])
+-----------------
 
 --[ aurora ]--
+-----------------
 -- vim.cmd[[set termguicolors]]               -- 24 bit color
 -- vim.cmd[[let g:aurora_italic = 1]]          -- italic
 -- vim.cmd[[let g:aurora_transparent = 1]]     -- transparent
@@ -41,12 +42,11 @@ vim.cmd([[colorscheme sonokai]])
 -- vim.api.nvim_set_hl(0, '@string', {fg='#59E343'})
 -- vim.api.nvim_set_hl(0, '@field', {fg='#f93393'})
 -- vim.api.nvim_set_hl(0, '@number', {fg='#e933e3'})
---[]--
+-----------------
 
 --[ gruvbox ]--
 -- vim.o.background = "dark" -- or "light" for light mode
 -- vim.cmd([[colorscheme gruvbox]])
---[]--
 -----------------
 
 -- vim.cmd([[colorscheme rose-pine]])
@@ -57,7 +57,7 @@ vim.cmd([[colorscheme sonokai]])
 -- vim.cmd([[colorscheme tokyonight-night]])
 -- vim.cmd([[colorscheme tokyonight-day]])
 -- vim.cmd([[colorscheme tokyonight-storm]])
--- vim.cmd([[colorscheme tokyonight-moon]])
+vim.cmd([[colorscheme tokyonight-moon]])
 ------------------
 
 --[ onedark ]--

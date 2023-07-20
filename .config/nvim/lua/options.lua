@@ -42,9 +42,9 @@ vim.opt.updatetime = 400 -- vim-signify async
 -- ]])
 --
 ------------[ folding ]------------
--- vim.opt.foldmethod = "expr"
+vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
--- vim.opt.foldenable = false      -- Disable folding at startup.
+vim.opt.foldenable = false -- Disable folding at startup.
 -- vim.opt.foldmethod = "manual"
 
 -- generate compile_commands.json everytine cmake called
