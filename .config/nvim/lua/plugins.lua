@@ -4,26 +4,33 @@ require("packer").startup(function()
 
 	-- colorscheme --
 	-----------------
-	use("arcticicestudio/nord-vim")
-	use("ellisonleao/gruvbox.nvim")
+	use("AlexvZyl/nordic.nvim")
 	use("folke/tokyonight.nvim")
-	use("navarasu/onedark.nvim")
 	use("ray-x/aurora")
+	use("rmehri01/onenord.nvim")
 	use("sainnhe/sonokai")
+	use("Shatur/neovim-ayu")
+	use("tanvirtin/monokai.nvim")
 	use("tomasr/molokai")
-	use({ "dracula/vim", as = "dracula-vim-theme" })
+	use({ "catppuccin/nvim", as = "catppuccin" })
 	use({ "challenger-deep-theme/vim", as = "challenger-deep-vim-theme" })
-	use({
-		"rose-pine/neovim",
-		as = "rose-pine-vim-theme",
-		-- config = function()
-		--     require("config/plugin/rose-pine-vim-theme")
-		-- end,
-	})
+	use({ "dracula/vim", as = "dracula-vim-theme" })
+	use({ "rose-pine/neovim", as = "rose-pine-vim-theme" })
 	-----------------
 
 	-- quality of life --
 	---------------------
+	-- coppilot
+	use({
+		"github/copilot.vim",
+		config = function()
+			vim.cmd([[
+                imap <silent><script><expr> <a-space> copilot#Accept("\<CR>")
+                let g:copilot_no_tab_map = v:true
+            ]])
+		end,
+	})
+
 	-- neodev (Neovim setup for init.lua)
 	use({
 		"folke/neodev.nvim",
@@ -38,7 +45,6 @@ require("packer").startup(function()
 			require("config/plugin/alpha-nvim")
 		end,
 	})
-
 	-- floaterm (floating terminal)
 	use({
 		"voldikss/vim-floaterm",
@@ -65,6 +71,7 @@ require("packer").startup(function()
 	-- telescope (similar to fzf?)
 	use({
 		"nvim-telescope/telescope.nvim",
+		tag = "0.1.1",
 		requires = { "nvim-lua/plenary.nvim" },
 		config = function()
 			require("config/plugin/telescope_nvim")
@@ -121,17 +128,43 @@ require("packer").startup(function()
 	-- 	end,
 	-- })
 
+	use({
+		"j-hui/fidget.nvim",
+		tag = "legacy",
+		config = function()
+			require("fidget").setup({})
+		end,
+	})
 	---------------------
 
 	-- IDE --
 	---------
-	-- LSP manager
+	-- mason (third-party package manager)
+	use("williamboman/mason.nvim")
+
+	-- lsp
 	use({
-		"williamboman/mason.nvim",
 		"williamboman/mason-lspconfig.nvim",
 		"neovim/nvim-lspconfig",
+		requires = { "williamboman/mason.nvim" },
 		-- config needs to be loaded for every buffer(?)
 		-- config file: [~/.config/nvim/lua/lsp_setup.lua]
+	})
+
+	-- dap
+	use({
+		"jay-babu/mason-nvim-dap.nvim",
+		requires = {
+			"williamboman/mason.nvim",
+			"mfussenegger/nvim-dap",
+		},
+		-- config file: [~/.config/nvim/lua/dap_setup.lua]
+	})
+
+	-- dap-ui
+	use({
+		"rcarriga/nvim-dap-ui",
+		requires = { "mfussenegger/nvim-dap" },
 	})
 
 	-- treesitter (parser)
@@ -155,24 +188,6 @@ require("packer").startup(function()
 		config = function()
 			require("config/plugin/formatter_nvim")
 		end,
-	})
-
-	-- dap
-	use({
-		"mfussenegger/nvim-dap",
-		-- config = function()
-		--     require("config/plugin/nvim-dap")
-		-- end,
-		-- per client config: [~/.config/nvim/lua/dap_setup.lua]
-	})
-
-	-- dap-ui
-	use({
-		"rcarriga/nvim-dap-ui",
-		requires = { "mfussenegger/nvim-dap" },
-		-- config = function()
-		--     require("config/plugin/nvim-dap-ui")
-		-- end,
 	})
 
 	-- trouble
@@ -202,6 +217,7 @@ require("packer").startup(function()
 			require("config/plugin/neovim-tasks")
 		end,
 	})
+
 	-- use({           -- alternative for cmake
 	--     "cdelledonne/vim-cmake",
 	--  branch = "78-do-not-escape-paths",
@@ -290,6 +306,14 @@ require("packer").startup(function()
 		end,
 		config = function()
 			require("config/plugin/markdown-preview_nvim")
+		end,
+	})
+
+	-- hex editor plugin
+	use({
+		"RaafatTurki/hex.nvim",
+		config = function()
+			require("hex").setup()
 		end,
 	})
 	-----------
