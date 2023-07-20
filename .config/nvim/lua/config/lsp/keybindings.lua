@@ -46,8 +46,16 @@ if use_direct_keymap then
 	keymap("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol" })
 
 	keymap("n", "<space>e", vim.diagnostic.open_float, { desc = "Line diagnostic" })
-	keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
-	keymap("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+	keymap("n", "[dd", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
+	keymap("n", "[da", function()
+		vim.diagnostic.goto_prev()
+		vim.lsp.buf.code_actiion()
+	end, { desc = "Previous diagnostic" })
+	keymap("n", "]dd", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+	keymap("n", "]da", function()
+		vim.diagnostic.goto_next()
+		vim.lsp.buf.code_actiion()
+	end, { desc = "Previous diagnostic" })
 	keymap("n", "<space>q", function()
 		local status, trouble = pcall(require, "trouble")
 		if status then
@@ -83,8 +91,16 @@ else
 	vim.api.nvim_set_keymap("n", "<leader>rn", ":lua vim.lsp.buf.rename()<cr>", opts)
 
 	vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opts)
-	vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-	vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
+	vim.keymap.set("n", "[dd", vim.diagnostic.goto_prev, opts)
+	vim.keymap.set("n", "[da", function()
+		vim.diagnostic.goto_prev()
+		vim.lsp.buf.code_action()
+	end, opts)
+	vim.keymap.set("n", "]dd", vim.diagnostic.goto_next, opts)
+	vim.keymap.set("n", "]da", function()
+		vim.diagnostic.goto_next()
+		vim.lsp.buf.code_action()
+	end, opts)
 	-- vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist, opts)
 	vim.keymap.set("n", "<space>q", function()
 		local status, trouble = pcall(require, "trouble")
@@ -121,3 +137,7 @@ for _, v in pairs(fileTypes) do
 		break
 	end
 end
+
+-- if vim.api.nvim_buf_get_option(0, "filetype") == "hpp" then
+vim.api.nvim_set_keymap("v", "<leader>c", "xistatic_cast<>()<esc>P`[v`]o<esc>ba", { noremap = true, silent = true })
+-- end
