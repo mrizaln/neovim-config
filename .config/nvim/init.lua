@@ -30,17 +30,22 @@ if nvim_version.major < expected_version.major or nvim_version.minor < expected_
 	print("Your Neovim version: " .. nvim_version.major .. "." .. nvim_version.minor .. "." .. nvim_version.patch)
 end
 
--- print("DISPLAY: "..tostring(os.getenv("DISPLAY")))
-
 -- load main configurations
 require("options")
 require("plugins")
 require("colorscheme")
 
-require("lsp_setup")
-require("dap_setup")
+local should_skip_lsp = vim.api.nvim_eval([[get(g:, 'init_should_skip_lsp', v:false)]]) -- set this at startup using `nvim --cmd "let g:init_should_skip_lsp = <bool>"`
+local is_diff = vim.opt.diff:get() -- check whether nvim run in diff mode
+
+if not is_diff and not should_skip_lsp then
+	require("lsp_setup")
+	require("dap_setup")
+end
 
 require("keybindings") -- global keybinds
 require("autocommands")
+
+-- vim.api.nvim_set_keymap("i", "<a-space>", ':lua print("hello")', { silent = false })
 
 --vim.cmd [[:COQnow -s]]
