@@ -1,12 +1,110 @@
 -----------------------------[ autocommands ]-----------------------------------
+
 --
--- filter undoes from TextChanged event
+------------[ detach lsp on file that not match list of filetype ]--------------
+--
+-- vim.api.nvim_create_augroup("BufReadCheckLspDetach", { clear = true })
+-- vim.api.nvim_create_autocmd({ "BufRead" }, {
+-- 	callback = function()
+-- 		for _, client in pairs(vim.lsp.get_active_clients({ buffer = 0 })) do
+-- 			print("on_attach client: " .. client.name)
+-- 			local filetype = vim.api.nvim_buf_get_option(0, "filetype")
+-- 			local shouldAttach = _G.myUtils.isInTable(filetype, client.config.filetypes)
+-- 			-- or _G.myUtils.isInTable(filetype, additional)
+
+-- 			if not shouldAttach then
+-- 				vim.lsp.buf_detach_client(vim.api.nvim_get_current_buf(), client.id)
+-- 				print("detaching client: " .. client.name)
+-- 			end
+-- 		end
+
+-- 		-- no lsp support; match current word instead
+-- 		vim.cmd([[call matchadd('LspReferenceText', expand('<cword>'), -1)]])
+-- 	end,
+-- 	pattern = "*",
+-- 	group = "BufReadCheckLspDetach",
+-- 	desc = "Detach LSP on buf not in client.config.filetypes",
+-- })
+--------------------------------------------------------------
+
+--
+--------------------[ highlight variables ]-------------------
+--
+-- vim.cmd([[
+--     function DocumentHighlightCustom()
+--         " let has_lsp_client = luaeval(vim.lsp.get_active_clients ~= nil)
+--         " if !has_lsp_client
+--         "     return
+--         " endif
+
+--         " let can_highlight = luaeval('vim.lsp.get_active_clients()[1].server_capabilities.documentHighlightProvider')
+--         " if can_highlight
+--         "     lua vim.lsp.buf.document_highlight()
+--         " endif
+
+--         lua for _, client in pairs(vim.lsp.get_active_clients()) do if client.server_capabilities.documentHighlightProvider then vim.lsp.buf.document_highlight() end end
+--     endfunction
+
+--     augroup VariableReferencesHighlight
+--         autocmd!
+--         autocmd CursorHold  * call DocumentHighlightCustom()
+--         autocmd CursorHoldI * call DocumentHighlightCustom()
+--         autocmd CursorMoved * lua vim.lsp.buf.clear_references()
+--     augroup END
+-- ]])
+
+vim.api.nvim_create_augroup("LspDocumentHighlight", { clear = true })
+vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+	callback = function()
+		for _, client in pairs(vim.lsp.get_active_clients({ buffer = 0 })) do
+			if client.name == "copilot" then
+				goto continue
+			end
+			-- there is lsp support
+			if client.server_capabilities.documentHighlightProvider then
+				if pcall(vim.lsp.buf.document_highlight) then
+				else
+					print("hi")
+				end
+				return
+			end
+			::continue::
+		end
+
+		-- no lsp support; match current word instead
+		vim.cmd([[call matchadd('LspReferenceText', expand('<cword>'), -1)]])
+	end,
+	pattern = "*",
+	group = "LspDocumentHighlight",
+	desc = "Document Highlight",
+})
+vim.api.nvim_create_autocmd("CursorMoved", {
+	callback = function()
+		vim.lsp.buf.clear_references()
+		vim.cmd([[call clearmatches()]]) -- clear word matches
+	end,
+	pattern = "*",
+	group = "LspDocumentHighlight",
+	desc = "Clear All the References",
+})
+--------------------------------------------------------------
+
+--
+-----[ set filetype to conf for file with .conf extension]----
+--
+-- vim.cmd([[autocmd BufRead,BufNewFile *.conf setfiletype conf]])
+--------------------------------------------------------------
+
+--
+-----------------[ filetype specific commands ]---------------
+--
 vim.cmd([[
+    " filter undoes from TextChanged event "
     function RunNotUndoElse(run, else_run)
         let undotree = undotree()
         if undotree.seq_cur is# undotree.seq_last
-            " no undos
-            echo a:run()
+            " no undoes
+            execute "call " . a:run . "()"
             return
         endif
 
@@ -15,57 +113,67 @@ vim.cmd([[
             execute a:else_run
         endif
     endfunction
-]])
 
---
--- filetype specific
-vim.cmd([[
+    " auto saves
+
     " turn on spell check on markdown files (for English and Indonesian)
     autocmd FileType markdown setlocal spelllang=en_us,id spell tabstop=2 softtabstop=2 shiftwidth=2 expandtab
-    autocmd FileType markdown autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | call RunNotUndoElse(function('MyFormatWrite'), ':write') | endif
 
     " set scrolloff to 0 for floaterm
-    autocmd FileType floaterm,Trouble setlocal scrolloff=1
+    autocmd FileType floaterm,Trouble,NvimTree setlocal scrolloff=0
 
     " autosaves on rust file on file change (to trigger rust_analyzer)
-    augroup autosave
+    augroup AutoSaves
         autocmd!
+        " auto saves only "
         autocmd FileType rust autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | silent write | endif
+        " auto saves but run formatter first"
+        autocmd FileType markdown,cpp autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | call RunNotUndoElse('MyFormatWrite', ':write') | endif
     augroup END
+
+    " conanfile.txt
+    autocmd BufNewFile,BufRead conanfile.txt setlocal filetype=ini
 ]])
+--------------------------------------------------------------
 
 --
--- ignore capital letters misspelling
+------------[ ignore capital letters misspelling ]------------
 vim.cmd([[
     fun! IgnoreCamelCaseSpell()
         syn match myExCapitalWords +\<\w*[A-Z]\K*\>+ contains=@NoSpell
     endfun
 
-    autocmd FileType !markdown BufRead,BufNewFile * :call IgnoreCamelCaseSpell()
-]])
-
---
--- jumps to the last position upon reopening a file
---
-vim.cmd([[
-    if has("autocmd")
-      au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
-        \| exe "normal! g'\"" | endif
-    endif
-]])
-
---
--- highlight yanked text for 200ms using the "Visual" highlight group
---
-vim.cmd([[
-    augroup highlight_yank
+    augroup IgnoreCamelCaseSpellAutocmd
         autocmd!
-            au TextYankPost * silent! lua vim.highlight.on_yank({higroup="Visual", timeout=200})
+        autocmd FileType !markdown BufRead,BufNewFile * :call IgnoreCamelCaseSpell()
     augroup END
 ]])
+--------------------------------------------------------------
 
 --
--- keep cursor at `scrolloff` distance from end of window
+-----[ jumps to the last position upon reopening a file ]-----
+--
+vim.cmd([[
+    augroup JumpToLastPositionOnBufRead
+        autocmd!
+        autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | execute "normal! g'\"" | endif
+    augroup END
+]])
+--------------------------------------------------------------
+
+--
+--[ highlight yanked text for 200ms using the "Visual" highlight group ]--
+--
+vim.cmd([[
+    augroup HighlightYank
+        autocmd!
+        autocmd TextYankPost * silent! lua vim.highlight.on_yank({higroup="Visual", timeout=400})
+    augroup END
+]])
+--------------------------------------------------------------
+
+--
+--[ keep cursor at `scrolloff` distance from end of window ]--
 --
 vim.cmd([[
     augroup KeepFromBottom
@@ -107,26 +215,4 @@ vim.cmd([[
         endif
     endfunction
 ]])
-
---
--- keep cursor centered
---
--- vim.cmd([[
--- augroup KeepCentered
---   autocmd!
---   autocmd CursorMoved * normal! zz
---   autocmd TextChangedI * call InsertRecenter()
--- augroup END
-
--- function InsertRecenter() abort
---   let at_end = getcursorcharpos()[2] > len(getline('.'))
---   normal! zz
-
---   " Fix position of cursor at end of line
---   if at_end
---     let cursor_pos = getcursorcharpos()
---     let cursor_pos[2] = cursor_pos[2] + 1
---     call setcursorcharpos(cursor_pos[1:])
---   endif
--- endfunction
--- ]])
+--------------------------------------------------------------
