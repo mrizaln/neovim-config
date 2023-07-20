@@ -4,6 +4,8 @@
 ------------------------------[[ Adapter Definition ]]------------------------------------
 local dap = require("dap")
 
+require("dap").set_log_level("TRACE")
+
 -- you need to launch codellbd manually using this configuration below
 --[[----------------------------------------------------------------------
 dap.adapters.codelldb = {
