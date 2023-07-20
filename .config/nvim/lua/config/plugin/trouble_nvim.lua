@@ -2,8 +2,33 @@ require("trouble").setup({
 	-- your configuration comes here
 	-- or leave it empty to use the default settings [
 	-- refer to the configuration section below
+	auto_open = true,
+	auto_close = true,
 })
 
+-- [[ has been provided by built in lsp keybindings ]]
+-- local opts = { noremap = true }
+-- -- jump to the next item, skipping the groups
+-- vim.keymap.set("n", "<leader>xn", function()
+-- 	require("trouble").next({ skip_groups = true, jump = true })
+-- end, opts)
+
+-- -- jump to the previous item, skipping the groups
+-- vim.keymap.set("n", "<leader>xN", function()
+-- 	require("trouble").previous({ skip_groups = true, jump = true })
+-- end, opts)
+
+-- -- jump to the first item, skipping the groups
+-- vim.keymap.set("n", "<leader>xf", function()
+-- 	require("trouble").first({ skip_groups = true, jump = true })
+-- end, opts)
+
+-- -- jump to the last item, skipping the groups
+-- vim.keymap.set("n", "<leader>xF", function()
+-- 	require("trouble").last({ skip_groups = true, jump = true })
+-- end, opts)
+
+--------------------------------------------------------------------------------
 -- for reference only
 DEFAULT_CONFIG = {
 	position = "bottom", -- position of the list can be: bottom, top, left, right

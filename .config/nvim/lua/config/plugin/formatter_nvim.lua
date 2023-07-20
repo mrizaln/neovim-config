@@ -107,6 +107,8 @@ require("formatter").setup({
 		javascript = clangformat, --eslint_d,
 		typescript = clangformat, --eslint_d,
 
+		json = require("formatter.filetypes.json").prettier,
+
 		python = require("formatter.filetypes.python").black,
 
 		rust = require("formatter.filetypes.rust").rustfmt,
@@ -181,7 +183,10 @@ vim.cmd([[
     function FormatterAutoCommandStatus()
         let l:filetype = FormatterAutoCommandGetFiletype()
 
-        return g:formatter_auto_format_enabled[l:filetype]
+        if g:formatter_auto_format_enabled[l:filetype]
+            return "enabled"
+        else
+            return "disabled"
     endfunction
 ]])
 
@@ -196,6 +201,11 @@ vim.cmd([[
             let g:formatter_auto_format_enabled[l:filetype] = (g:formatter_auto_format_enabled[l:filetype] + 1) % 2 " toggle
         else
             let g:formatter_auto_format_enabled[l:filetype] = a:state
+        endif
+
+        " immediately call formatter"
+        if g:formatter_auto_format_enabled[l:filetype]
+            call MyFormatWrite()
         endif
     endfunction
 

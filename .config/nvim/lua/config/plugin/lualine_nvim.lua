@@ -1,6 +1,7 @@
 local function wordAndCharCount()
 	local count = vim.fn.wordcount()
-	return "w:" .. count.words .. "|c:" .. count.chars
+	count.lines = vim.fn.line("$")
+	return "c:" .. count.chars .. "|w:" .. count.words .. "|l:" .. count.lines
 end
 
 require("lualine").setup({

@@ -3,7 +3,7 @@ require("tasks").setup({
 	default_params = {
 		cmake = {
 			cmd = "cmake",
-			build_dir = tostring(Path:new("{cwd}", "build", "{os}-{build_type}")),
+			build_dir = tostring(Path:new("{cwd}", "build", "{build_type}")),
 			build_type = "Debug",
 			--dap_name = 'lldb', -- DAP configuration name from `require('dap').configurations`. If there is no such configuration, a new one with this name as `type` will be created.
 			dap_name = "codelldb",
