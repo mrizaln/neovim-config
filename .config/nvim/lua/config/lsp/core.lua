@@ -4,6 +4,9 @@
 --  2. mason-lspconfig.nvim
 --  3. setup servers via lspconfig
 
+-- turn off lsp log (only enable logging for debugging)
+vim.lsp.set_log_level(vim.lsp.log_levels.OFF)
+
 require("mason").setup({
 	ui = {
 		icons = {
@@ -18,24 +21,15 @@ require("mason").setup({
 require("mason-lspconfig").setup({
 	ensure_installed = {
 		"lua_ls", -- lua
-		"clangd", -- C, C++
+		-- "clangd@16.0.2", -- C, C++ (version 17.0.3 has a bug: random crash with sigsev signal)
 		-- "jedi_language_server", -- python
-		"pyright",
+		-- "pyright",       -- slowwww
 		"rust_analyzer", -- rust
 		"tsserver", -- typescript, javascript
 		"bashls", -- bash
-		"cmake", -- cmake
+		-- "cmake", -- cmake
 	},
 })
-
--- variable highlighting
-local variable_highlight_aucmd = [[
-    augroup VariableHighlight
-        autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()
-        autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()
-        autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-    augroup END
-]]
 
 -- load nvim-cmp capabilites
 local capabilites = vim.lsp.protocol.make_client_capabilities()
@@ -44,27 +38,12 @@ if ok then
 	capabilites = cmp_lsp.default_capabilities()
 end
 
-local function on_attach(client, additional)
-	local filetype = vim.api.nvim_buf_get_option(0, "filetype")
-	local shouldAttach = _G.myUtils.isInTable(filetype, client.config.filetypes)
-		or _G.myUtils.isInTable(filetype, additional)
-	-- print(vim.api.nvim_get_current_buf() .. " | " .. filetype .. " | on_attach client: " .. client.name)
-
-	if not shouldAttach then
-		vim.lsp.buf_detach_client(vim.api.nvim_get_current_buf(), client.id)
-		-- print("detaching client: " .. client.name)
-	end
-end
-
 -- for LSPs installed using Mason
 require("mason-lspconfig").setup_handlers({
 	--------------------[ default handler ]--------------------
 	function(server_name) -- default handler (optional)
 		require("lspconfig")[server_name].setup({
 			capabilites = capabilites,
-			on_attach = function(client)
-				on_attach(client, {})
-			end,
 			-- settings = {
 			--     completion = {
 			--         callSnippet ="Replace"
@@ -76,24 +55,22 @@ require("mason-lspconfig").setup_handlers({
 	-----------------------[ overrides ]-----------------------
 	-- clangd
 	["clangd"] = function()
-		local config = require("lspconfig.server_configurations.clangd").default_config
-		config.capabilites = capabilites
-		-- config.cmd = { "clangd", "--enable-config" }
-		config.cmd = {
-			"clangd",
-			-- by default, clang-tidy use -checks=clang-diagnostic-*,clang-analyzer-*
-			-- to add more checks, create .clang-tidy file in the root directory
-			-- and add Checks key, see https://clang.llvm.org/extra/clang-tidy/
-			"--clang-tidy",
-			"--background-index",
-			"--completion-style=bundled",
-			"--header-insertion=iwyu",
-			"--offset-encoding=utf-16",
-		}
-		config.on_attach = function(client)
-			on_attach(client, { "h", "hpp" })
-		end
-		require("lspconfig")["clangd"].setup(config)
+		require("lspconfig")["clangd"].setup({
+			capabilites = capabilites,
+			cmd = {
+				"clangd",
+				-- by default, clang-tidy use -checks=clang-diagnostic-*,clang-analyzer-*
+				-- to add more checks, create .clang-tidy file in the root directory
+				-- and add Checks key, see https://clang.llvm.org/extra/clang-tidy/
+				"--clang-tidy",
+				-- "--background-index",
+				"--completion-style=bundled",
+				"--header-insertion=iwyu",
+				-- "--header-insertion=never",
+				"--offset-encoding=utf-16",
+				"-j=6", -- worker threads
+			},
+		})
 	end,
 
 	-- lua
@@ -117,9 +94,6 @@ require("mason-lspconfig").setup_handlers({
 					},
 				},
 			},
-			on_attach = function(client)
-				on_attach(client, {})
-			end,
 		})
 	end,
 
@@ -146,9 +120,28 @@ require("mason-lspconfig").setup_handlers({
 					},
 				},
 			},
-			on_attach = function(client)
-				on_attach(client, {})
-			end,
+		})
+	end,
+
+	["pyright"] = function()
+		require("lspconfig")["pyright"].setup({
+			capabilites = capabilites,
+		})
+	end,
+
+	["gopls"] = function()
+		require("lspconfig")["gopls"].setup({
+			capabilites = capabilites,
+			settings = {
+				gopls = {
+					analyses = {
+						unusedparams = true,
+					},
+					staticcheck = true,
+					gofumpt = true,
+					-- matcher = "CaseInsensitive", -- default is "Fuzzy"
+				},
+			},
 		})
 	end,
 
@@ -160,3 +153,43 @@ require("mason-lspconfig").setup_handlers({
 	--     })
 	-- end
 })
+
+-- for LSPs not installed using Mason
+require("lspconfig")["clangd"].setup({
+	capabilites = capabilites,
+	cmd = {
+		"clangd",
+		-- by default, clang-tidy use -checks=clang-diagnostic-*,clang-analyzer-*
+		-- to add more checks, create .clang-tidy file in the root directory
+		-- and add Checks key, see https://clang.llvm.org/extra/clang-tidy/
+		"--clang-tidy",
+		-- "--background-index",
+		"--completion-style=bundled",
+		"--header-insertion=iwyu",
+		-- "--header-insertion=never",
+		"--offset-encoding=utf-16",
+		"-j=6", -- worker threads
+	},
+})
+
+-- require("lspconfig.configs")["pyls"] = {
+-- 	default_config = {
+-- 		cmd = {
+-- 			"venv-run",
+-- 			"--venv",
+-- 			"/home/mrizaln/kela/python-language-server-venv/venv/",
+-- 			"--",
+-- 			"pyls",
+-- 		},
+-- 		filetypes = { "python" },
+-- 		single_file_support = true,
+-- 	},
+-- 	docs = {
+-- 		description = [[nothing]],
+-- 	},
+-- }
+
+-- require("lspconfig")["pyls"].setup({
+-- 	capabilites = capabilites,
+-- 	autostart = false,
+-- })
