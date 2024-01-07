@@ -52,32 +52,80 @@ nkeymap(
 ikeymap("<c-z>", "<esc>zza", options)
 
 -- ctrl+backspace and ctlr+delete
-vim.api.nvim_set_keymap("i", "<c-BS>", "<c-w>", options)
-vim.api.nvim_set_keymap("i", "<c-Del>", "<cmd>norm! dw<cr>", options)
+-- vim.api.nvim_set_keymap("i", "<c-BS>", "<c-w>", options)    -- not working
+ikeymap("<c-Del>", "<cmd>norm! dw<cr>", options)
 
--- yank then search
-vkeymap("/", 'y/<c-r>"<cr>N', { noremap = true })
+-- override the default * to search without jump
+-- see: https://stackoverflow.com/a/49944815
+nkeymap("*", [[:let @/= '\<' . expand('<cword>') . '\>' <bar> set hls <cr>]], { noremap = true, silent = true })
+
+-- yank then search (using s register) [ inspired by above ]
+local search_s = [["sy:let @/= '\V' . escape(@s, '/\')<CR>:set hls<CR>]]
+vkeymap("/", search_s, { noremap = true, silent = true })
+
+-- yank then search but whole (using s register) [ inspired by above ]
+local search_w = [["sy:let @/= '\V' . '\<' . escape(@s, '/\') . '\>'<CR>:set hls<CR>]]
+vkeymap("?", search_w, { noremap = true, silent = true })
+
+local function search_pattern(p, s)
+	local function add_then_back(ss)
+		local len = string.len(ss)
+		local new_s = ss
+		for _ = 1, len do
+			new_s = new_s .. "<Left>"
+		end
+		return new_s
+	end
+
+	local prefix = p .. [[<esc>:%s/\V]]
+	local suffix = add_then_back([[/g | noh | norm!``]])
+
+	return prefix .. s .. suffix
+end
+
+local opt_v = { noremap = true }
 
 -- search and replace currently selected text
+-- replace currently highlighted text with new text
+vkeymap("<leader>r", search_pattern(search_s, [[<c-r>=escape(@s,'/\')<cr>/]]), opt_v)
+
+-- replace currently highlighted text with new text (whole word)
+vkeymap("<leader>R", search_pattern(search_w, [[\<<c-r>=escape(@s,'/\')<cr>\>/]]), opt_v)
+
+-- insert new text before currently highlighted text
+vkeymap("<leader>i", search_pattern(search_s, [[\ze<c-r>=escape(@s,'/\')<cr>/]]), opt_v)
+
+-- insert new text after currently highlighted text (whole word)
+vkeymap("<leader>I", search_pattern(search_w, [[\ze\<<c-r>=escape(@s,'/\')<cr>\>/]]), opt_v)
+
+-- append new text after currently highlighted text
+vkeymap("<leader>a", search_pattern(search_s, [[<c-r>=escape(@s,'/\')<cr>\zs/]]), opt_v)
+
+-- append new text after currently highlighted text (whole word)
+vkeymap("<leader>A", search_pattern(search_w, [[\<<c-r>=escape(@s,'/\')<cr>\zs\>/]]), opt_v)
+
+-- edit currently highlighted text
 vkeymap(
-	"<leader>r",
-	[[ygv*N<esc>:%s/\zs<C-R>=escape(@",'/\')<CR>\ze/<C-R>=escape('', '/')<CR>/g<Left><Left>]],
+	"<leader>e",
+	search_pattern(search_s, [[<c-r>=escape(@s,'/\')<cr>/<c-r>=escape(@s,'/\')<cr>]]),
 	{ noremap = true }
 )
+
+-- edit currently highlighted text (whole word)
 vkeymap(
-	"<leader>i",
-	[[ygv*N<esc>:%s/\ze<C-R>=escape(@",'/\')<CR>/<C-R>=escape('', '/')<CR>/g<Left><Left>]],
-	{ noremap = true }
-)
-vkeymap(
-	"<leader>a",
-	[[ygv*N<esc>:%s/<C-R>=escape(@",'/\')<CR>\zs/<C-R>=escape('', '/')<CR>/g<Left><Left>]],
+	"<leader>E",
+	search_pattern(search_w, [[\<<c-r>=escape(@s,'/\')<cr>\>/<c-r>=escape(@s,'/\')<cr>]]),
 	{ noremap = true }
 )
 
 -- o and O now create newline without going into insert mode
 -- vim.cmd([[nnoremap o o<Esc>]])
 -- vim.cmd([[nnoremap O O<Esc>]])
+
+-- shift+enter on insert mode create newline without breaking current line
+-- this keymap needs some configuration on the terminal emulator and/or the multiplexer
+-- see: https://stackoverflow.com/a/42461580
+ikeymap("<s-cr>", "<C-o>o", options)
 
 --
 -- lsp keybindings       : [~/.config/nvim/lua/config/lsp/keybindings.lua]
