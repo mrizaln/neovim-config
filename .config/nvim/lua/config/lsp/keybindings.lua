@@ -83,6 +83,7 @@ else
 		"n",
 		"K",
 		[[:lua (function() if vim.bo.filetype == "help" then vim.api.nvim_feedkeys("K", "ni", true) else vim.lsp.buf.hover() end end)()<cr>]],
+		-- [[:lua (function() if vim.bo.filetype == "help" then vim.api.nvim_feedkeys("K", "ni", true) else require("pretty_hover").hover() end end)()<cr>]],
 		opts
 	)
 
@@ -140,4 +141,5 @@ end
 
 -- if vim.api.nvim_buf_get_option(0, "filetype") == "hpp" then
 vim.api.nvim_set_keymap("v", "<leader>c", "xistatic_cast<>()<esc>P`[v`]o<esc>ba", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("v", "<leader>m", "xistd::move()<esc>Pw", { noremap = true, silent = true })
 -- end
