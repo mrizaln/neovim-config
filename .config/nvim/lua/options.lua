@@ -4,6 +4,11 @@
 --	local to buffer (vim.bo)
 --]]
 
+-- title
+vim.opt.title = true
+vim.opt.titlelen = 32
+vim.opt.titlestring = "%f-%y-%r"
+
 vim.opt.mouse = "a"
 
 vim.opt.tabstop = 4
@@ -11,7 +16,8 @@ vim.opt.shiftwidth = 0 -- match tabstop
 vim.opt.softtabstop = 4
 vim.opt.expandtab = true -- convert tab to spaces
 vim.opt.showbreak = "↪"
-vim.opt.wrap = true
+-- vim.opt.wrap = true
+vim.opt.wrap = false
 
 vim.opt.scrolloff = 10
 
@@ -31,7 +37,9 @@ vim.opt.termguicolors = true
 
 vim.opt.showmode = false
 
-vim.cmd([[set cc=80]]) -- 90 column border
+-- vim.opt.inccommand = nil
+
+vim.cmd([[set cc=80,90,120]]) -- 90 column border
 
 --
 vim.opt.updatetime = 400 -- vim-signify async
@@ -42,10 +50,10 @@ vim.opt.updatetime = 400 -- vim-signify async
 -- ]])
 --
 ------------[ folding ]------------
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
-vim.opt.foldenable = false -- Disable folding at startup.
--- vim.opt.foldmethod = "manual"
+-- vim.opt.foldmethod = "expr"
+-- vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+-- vim.opt.foldenable = false -- Disable folding at startup.
+vim.opt.foldmethod = "manual"
 
 -- generate compile_commands.json everytine cmake called
 vim.cmd([[let g:cmake_link_compile_commands = 1]])

@@ -30,22 +30,45 @@ if nvim_version.major < expected_version.major or nvim_version.minor < expected_
 	print("Your Neovim version: " .. nvim_version.major .. "." .. nvim_version.minor .. "." .. nvim_version.patch)
 end
 
--- load main configurations
-require("options")
-require("plugins")
-require("colorscheme")
+-- check if file is too large
+local max_filesize = 10000 * 1024 -- 10 MB
+local current_bufnr = vim.api.nvim_get_current_buf()
+local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(current_bufnr))
+if ok and stats and stats.size > max_filesize then
+	print("Warning!\nFile is too large! (" .. math.floor(stats.size / 1024) .. " KiB)")
+	vim.cmd([[
+        set foldmethod=manual
+        syntax clear
+        syntax off
+        filetype off
+        set noundofile
+        set noswapfile
+        set noloadplugins
+        " set nowrap
+    ]])
+	require("keybindings") -- global keybinds
+	require("colorscheme")
+else
+	require("options")
+	require("keybindings") -- global keybinds
+	require("colorscheme")
 
-local should_skip_lsp = vim.api.nvim_eval([[get(g:, 'init_should_skip_lsp', v:false)]]) -- set this at startup using `nvim --cmd "let g:init_should_skip_lsp = <bool>"`
-local is_diff = vim.opt.diff:get() -- check whether nvim run in diff mode
+	local minimal = vim.api.nvim_eval([[get(g:, 'init_minimal', v:false)]]) -- set this at startup using `nvim --cmd "let g:init_minimal = <bool>"`
+	if minimal then
+		print("Opening in minimal mode")
+		require("lsp_setup") -- load at least lsp
+	end
+	local is_diff = vim.opt.diff:get() -- check whether nvim run in diff mode
 
-if not is_diff and not should_skip_lsp then
-	require("lsp_setup")
-	require("dap_setup")
+	if not is_diff and not minimal then
+		require("plugins")
+		require("lsp_setup")
+		require("dap_setup")
+		require("commands")
+		require("autocommands")
+	end
+
+	-- vim.api.nvim_set_keymap("i", "<a-space>", ':lua print("hello")', { silent = false })
+
+	--vim.cmd [[:COQnow -s]]
 end
-
-require("keybindings") -- global keybinds
-require("autocommands")
-
--- vim.api.nvim_set_keymap("i", "<a-space>", ':lua print("hello")', { silent = false })
-
---vim.cmd [[:COQnow -s]]
