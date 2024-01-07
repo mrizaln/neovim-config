@@ -1,78 +1,35 @@
 -----------------------------[ autocommands ]-----------------------------------
 
 --
-------------[ detach lsp on file that not match list of filetype ]--------------
+---------------[ highlight variables (or word) ]--------------
 --
--- vim.api.nvim_create_augroup("BufReadCheckLspDetach", { clear = true })
--- vim.api.nvim_create_autocmd({ "BufRead" }, {
--- 	callback = function()
--- 		for _, client in pairs(vim.lsp.get_active_clients({ buffer = 0 })) do
--- 			print("on_attach client: " .. client.name)
--- 			local filetype = vim.api.nvim_buf_get_option(0, "filetype")
--- 			local shouldAttach = _G.myUtils.isInTable(filetype, client.config.filetypes)
--- 			-- or _G.myUtils.isInTable(filetype, additional)
-
--- 			if not shouldAttach then
--- 				vim.lsp.buf_detach_client(vim.api.nvim_get_current_buf(), client.id)
--- 				print("detaching client: " .. client.name)
--- 			end
--- 		end
-
--- 		-- no lsp support; match current word instead
--- 		vim.cmd([[call matchadd('LspReferenceText', expand('<cword>'), -1)]])
--- 	end,
--- 	pattern = "*",
--- 	group = "BufReadCheckLspDetach",
--- 	desc = "Detach LSP on buf not in client.config.filetypes",
--- })
---------------------------------------------------------------
-
+-- ref: https://sbulav.github.io/til/til-neovim-highlight-references/
 --
---------------------[ highlight variables ]-------------------
---
--- vim.cmd([[
---     function DocumentHighlightCustom()
---         " let has_lsp_client = luaeval(vim.lsp.get_active_clients ~= nil)
---         " if !has_lsp_client
---         "     return
---         " endif
-
---         " let can_highlight = luaeval('vim.lsp.get_active_clients()[1].server_capabilities.documentHighlightProvider')
---         " if can_highlight
---         "     lua vim.lsp.buf.document_highlight()
---         " endif
-
---         lua for _, client in pairs(vim.lsp.get_active_clients()) do if client.server_capabilities.documentHighlightProvider then vim.lsp.buf.document_highlight() end end
---     endfunction
-
---     augroup VariableReferencesHighlight
---         autocmd!
---         autocmd CursorHold  * call DocumentHighlightCustom()
---         autocmd CursorHoldI * call DocumentHighlightCustom()
---         autocmd CursorMoved * lua vim.lsp.buf.clear_references()
---     augroup END
--- ]])
-
 vim.api.nvim_create_augroup("LspDocumentHighlight", { clear = true })
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 	callback = function()
-		for _, client in pairs(vim.lsp.get_active_clients({ buffer = 0 })) do
-			if client.name == "copilot" then
-				goto continue
-			end
-			-- there is lsp support
+		-- ignore if current buffer is not a file
+		if vim.api.nvim_buf_get_option(0, "buftype") ~= "" then
+			return
+		end
+
+		local current_bufnr = vim.api.nvim_get_current_buf()
+
+		-- for some reason, this function returns all active clients regardless of the buffer being provided as argument
+		local active_clients = vim.lsp.get_active_clients({ buffer = current_bufnr })
+
+		for _, client in pairs(active_clients) do
 			if client.server_capabilities.documentHighlightProvider then
-				if pcall(vim.lsp.buf.document_highlight) then
-				else
-					print("hi")
+				local bufnrs = vim.lsp.get_buffers_by_client_id(client.id)
+				if vim.tbl_contains(bufnrs, current_bufnr) then
+					vim.lsp.buf.document_highlight()
+					return
 				end
-				return
 			end
-			::continue::
 		end
 
 		-- no lsp support; match current word instead
-		vim.cmd([[call matchadd('LspReferenceText', expand('<cword>'), -1)]])
+		vim.cmd([[call matchadd('LspReferenceText', '\<' . expand('<cword>') . '\>', -1)]])
 	end,
 	pattern = "*",
 	group = "LspDocumentHighlight",
@@ -122,13 +79,13 @@ vim.cmd([[
     " set scrolloff to 0 for floaterm
     autocmd FileType floaterm,Trouble,NvimTree setlocal scrolloff=0
 
-    " autosaves on rust file on file change (to trigger rust_analyzer)
+    " autosaves on selected filetypes on file change
     augroup AutoSaves
         autocmd!
-        " auto saves only "
+        " auto saves only for rust files (to trigger rust_analyzer)"
         autocmd FileType rust autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | silent write | endif
-        " auto saves but run formatter first"
-        autocmd FileType markdown,cpp autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | call RunNotUndoElse('MyFormatWrite', ':write') | endif
+        " auto saves and format but run the formatter first"
+        autocmd FileType markdown,cpp,glsl autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | call RunNotUndoElse('MyFormatWrite', ':write') | endif
     augroup END
 
     " conanfile.txt
@@ -184,6 +141,10 @@ vim.cmd([[
     augroup END
 
     function AvoidBottom()
+        if &ft == 'floaterm' || &ft == 'NvimTree' || &ft == 'Trouble' || &ft == 'qf'
+            return
+        endif
+
         let distance_from_window_end = winheight(0) - winline()
         let lines_below_scrolloff = distance_from_window_end - &scrolloff
         let distance_to_eof = line('$') - line('.')
