@@ -5,6 +5,9 @@ require("lsp_signature").setup({
 	},
 })
 
-vim.keymap.set("i", "<c-k>", function()
-	require("lsp_signature").toggle_float_win()
-end, { silent = true, noremap = true, desc = "toggle signature" })
+vim.keymap.set(
+	"i",
+	"<c-k>",
+	require("lsp_signature").toggle_float_win,
+	{ silent = true, noremap = true, desc = "toggle signature" }
+)

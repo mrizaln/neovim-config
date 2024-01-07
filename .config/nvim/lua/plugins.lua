@@ -21,13 +21,28 @@ require("packer").startup(function()
 	-- quality of life --
 	---------------------
 	-- coppilot
+	-- use({
+	-- 	"github/copilot.vim",
+	-- 	config = function()
+	-- 		vim.cmd([[
+	--                imap <silent><script><expr> <a-space> copilot#Accept("\<CR>")
+	--                let g:copilot_no_tab_map = v:true
+	--            ]])
+	-- 	end,
+	-- })
+
 	use({
-		"github/copilot.vim",
+		"zbirenbaum/copilot.lua",
+		cmd = "Copilot",
+		event = "InsertEnter",
 		config = function()
-			vim.cmd([[
-                imap <silent><script><expr> <a-space> copilot#Accept("\<CR>")
-                let g:copilot_no_tab_map = v:true
-            ]])
+			require("copilot").setup({
+				suggestion = {
+					keymap = {
+						accept = "<a-space>",
+					},
+				},
+			})
 		end,
 	})
 
@@ -45,6 +60,7 @@ require("packer").startup(function()
 			require("config/plugin/alpha-nvim")
 		end,
 	})
+
 	-- floaterm (floating terminal)
 	use({
 		"voldikss/vim-floaterm",
@@ -71,7 +87,7 @@ require("packer").startup(function()
 	-- telescope (similar to fzf?)
 	use({
 		"nvim-telescope/telescope.nvim",
-		tag = "0.1.1",
+		tag = "0.1.5",
 		requires = { "nvim-lua/plenary.nvim" },
 		config = function()
 			require("config/plugin/telescope_nvim")
@@ -133,6 +149,24 @@ require("packer").startup(function()
 		tag = "legacy",
 		config = function()
 			require("fidget").setup({})
+		end,
+	})
+
+	use({
+		"kylechui/nvim-surround",
+		tag = "*", -- Use for stability; omit to use `main` branch for the latest features
+		config = function()
+			require("nvim-surround").setup({
+				-- Configuration here, or leave empty to use defaults
+			})
+		end,
+	})
+
+	use({
+		"folke/todo-comments.nvim",
+		requires = { "nvim-lua/plenary.nvim" },
+		config = function()
+			require("config/plugin/todo-comments_nvim")
 		end,
 	})
 	---------------------
@@ -258,6 +292,28 @@ require("packer").startup(function()
 		-- config: [./config/plugin/lsp_signature_nvim]
 	})
 
+	-- better hover (by rendering the markdown on the hover doc)
+	-- use({
+	-- 	"JASONews/glow-hover",
+	-- 	config = function()
+	-- 		require("glow-hover").setup({
+	-- 			max_width = 100,
+	-- 			padding = 5,
+	-- 			border = "shadow",
+	-- 			-- glow_path = "glow",
+	-- 			glow_path = "/home/mrizaln/Apps/src/glow/glow",
+	-- 		})
+	-- 	end,
+	-- })
+
+	-- better hover (for c++ at least)
+	use({
+		"Fildo7525/pretty_hover",
+		config = function()
+			require("pretty_hover").setup({})
+		end,
+	})
+
 	-- symbols-outline
 	use({
 		"simrat39/symbols-outline.nvim",
@@ -314,6 +370,24 @@ require("packer").startup(function()
 		"RaafatTurki/hex.nvim",
 		config = function()
 			require("hex").setup()
+		end,
+	})
+
+	-- markdown previewer
+	use({
+		"ellisonleao/glow.nvim",
+		config = function()
+			require("glow").setup({
+				-- glow_path = "",  -- auto if exist
+				-- install_path = "~/.local/bin", -- default path for installing glow binary
+				-- border = "shadow", -- floating window border config
+				style = "dark",
+				-- pager = false,
+				width = 120,
+				-- height = 100,
+				-- width_ratio = 0.7, -- maximum width of the Glow window compared to the nvim window size (overrides `width`)
+				-- height_ratio = 0.7,
+			})
 		end,
 	})
 	-----------

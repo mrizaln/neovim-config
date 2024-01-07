@@ -21,6 +21,15 @@ configs.setup({
 	auto_install = true,
 	highlight = { -- enable highlighting
 		enable = true,
+		-- disable slow treesitter highlight for large files
+		disable = function(lang, buf)
+			local max_filesize = 100 * 1024 -- 100 KB
+			local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+			if ok and stats and stats.size > max_filesize then
+				print("Treesitter disabled due to the file size of file being opened too big (> 100K)")
+				return true
+			end
+		end,
 	},
 	-- indent = {
 	-- 	enable = true, -- default is disabled anyways

@@ -3,6 +3,7 @@
 local cmp = require("cmp")
 
 cmp.setup({
+	preselect = cmp.PreselectMode.None, -- https://github.com/hrsh7th/nvim-cmp/issues/850
 	snippet = {
 		-- REQUIRED - you must specify a snippet engine
 		expand = function(args)

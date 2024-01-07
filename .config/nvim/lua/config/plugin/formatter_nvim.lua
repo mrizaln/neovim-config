@@ -48,8 +48,6 @@ local clangformat = function()
 	end
 end
 
--- local eslint_d = require("formatter.defaults.eslint_d")
-
 local prettier = function()
 	local _prettier = require("formatter.filetypes.markdown").prettier()
 
@@ -102,18 +100,23 @@ require("formatter").setup({
 
 		c = clangformat,
 		cpp = clangformat,
-		java = clangformat,
+		glsl = clangformat,
+		-- java = clangformat,
 
-		javascript = clangformat, --eslint_d,
-		typescript = clangformat, --eslint_d,
-
+		javascript = require("formatter.defaults.eslint_d"),
+		typescript = require("formatter.defaults.eslint_d"),
 		json = require("formatter.filetypes.json").prettier,
+
+		xml = require("formatter.filetypes.xml").tidy,
+		html = require("formatter.filetypes.html").tidy,
 
 		python = require("formatter.filetypes.python").black,
 
 		rust = require("formatter.filetypes.rust").rustfmt,
 
 		markdown = prettier,
+
+		go = require("formatter.filetypes.go").gofmt,
 
 		-- Use the special "*" filetype for defining formatter configurations on
 		-- any filetype
@@ -133,13 +136,14 @@ require("formatter").setup({
 -- auto format rule
 vim.cmd([[
     let g:formatter_auto_format_rules = {
-        \'c' : 1,
-        \'cpp' : 1,
-        \'lua' : 1,
-        \'markdown' : 1,
-        \'python' : 0,
-        \'rust' : 1,
-        \'other' : 0,
+        \'c'        : v:true,
+        \'cpp'      : v:true,
+        \'glsl'     : v:true,
+        \'lua'      : v:true,
+        \'markdown' : v:true,
+        \'python'   : v:false,
+        \'rust'     : v:true,
+        \'other'    : v:false,
     \}
 ]])
 
@@ -152,7 +156,9 @@ vim.cmd([[
             let l:filetype = "other"
         endif
 
-        if !has_key(g:formatter_auto_format_rules, l:filetype)
+        if &buftype != ""
+            return "notfile"        " notfile is a special case for non-file buffers
+        elseif !has_key(g:formatter_auto_format_rules, l:filetype)
             return "other"
         else
             return l:filetype
@@ -169,10 +175,16 @@ vim.cmd([[
     function FormatterAutoCommandInit()
         let l:filetype = FormatterAutoCommandGetFiletype()
 
+        if l:filetype == "notfile"
+            return
+        endif
+
+        " if the rule has been overridden, don't load the default
         if has_key(g:formatter_auto_format_overridden, l:filetype)
             return
         endif
 
+        " load the default rule
         let l:rule = g:formatter_auto_format_rules[l:filetype]
         let g:formatter_auto_format_enabled[l:filetype] = l:rule
     endfunction
@@ -180,13 +192,23 @@ vim.cmd([[
 
 -- auto format status
 vim.cmd([[
-    function FormatterAutoCommandStatus()
+    function FormatterAutoCommandStatus(short)
         let l:filetype = FormatterAutoCommandGetFiletype()
 
-        if g:formatter_auto_format_enabled[l:filetype]
-            return "enabled"
+        if a:short
+            if l:filetype == "notfile"
+                echo "FormatterAutoCommandStatus (notfile): not a file"
+            elseif !has_key(g:formatter_auto_format_enabled, l:filetype)
+                echo "FormatterAutoCommandStatus (" . l:filetype . "): uninitialized"
+            else
+                let l:status = g:formatter_auto_format_enabled[l:filetype] ? "enabled" : "disabled"
+                echo "FormatterAutoCommandStatus (" . l:filetype . "): " . l:status
+            endif
         else
-            return "disabled"
+            echo "default   :" g:formatter_auto_format_rules
+            echo "current   :" g:formatter_auto_format_enabled
+            echo "overridden:" g:formatter_auto_format_overridden
+        endif
     endfunction
 ]])
 
@@ -195,10 +217,21 @@ vim.cmd([[
     function FormatterAutoCommandFunction(state)
         let l:filetype = FormatterAutoCommandGetFiletype()
 
-        let g:formatter_auto_format_overridden[l:filetype] = 1
+        if l:filetype == "notfile"
+            return
+        endif
 
-        if empty(a:state)
-            let g:formatter_auto_format_enabled[l:filetype] = (g:formatter_auto_format_enabled[l:filetype] + 1) % 2 " toggle
+        let g:formatter_auto_format_overridden[l:filetype] = v:true
+
+        " if for some reason the init function was not called for the current buffer, call it now
+        if !has_key(g:formatter_auto_format_enabled, l:filetype)
+            echo "Formatter auto command has not been initialized for this buffer, calling FormatterAutoCommandInit()"
+            call FormatterAutoCommandInit()
+        endif
+
+        if empty(a:state) " toggle"
+            " let g:formatter_auto_format_enabled[l:filetype] = (g:formatter_auto_format_enabled[l:filetype] + 1) % 2
+            let g:formatter_auto_format_enabled[l:filetype] = g:formatter_auto_format_enabled[l:filetype] ? v:false : v:true
         else
             let g:formatter_auto_format_enabled[l:filetype] = a:state
         endif
@@ -210,25 +243,30 @@ vim.cmd([[
     endfunction
 
 
-    command -nargs=0 FormatWriteAutoCmdStatus echo "FormatterAutoCommandStatus (" . &filetype . "): " . FormatterAutoCommandStatus()
-    command -nargs=? FormatWriteAutoCmd call FormatterAutoCommandFunction("<args>") | FormatWriteAutoCmdStatus
-    command -nargs=0 FormatWriteAutoCmdToggle call FormatterAutoCommandFunction("") | FormatWriteAutoCmdStatus
-    command -nargs=0 FormatWriteAutoCmdEnable call FormatterAutoCommandFunction(1) | FormatWriteAutoCmdStatus
-    command -nargs=0 FormatWriteAutoCmdDisable call FormatterAutoCommandFunction(0) | FormatWriteAutoCmdStatus
+    command -nargs=1 FormatWriteAutoCmdStatus call FormatterAutoCommandStatus(<args>)
+    command -nargs=0 FormatWriteAutoCmdToggle call FormatterAutoCommandFunction("") | FormatWriteAutoCmdStatus v:true
+    command -nargs=0 FormatWriteAutoCmdEnable call FormatterAutoCommandFunction(v:true) | FormatWriteAutoCmdStatus v:true
+    command -nargs=0 FormatWriteAutoCmdDisable call FormatterAutoCommandFunction(v:false) | FormatWriteAutoCmdStatus v:true
 ]])
 
 -- format after save autocommand
 vim.cmd([[
     augroup FormatAutogroup
         autocmd!
-        autocmd BufEnter * call FormatterAutoCommandInit()
+        autocmd BufNewFile,BufRead * call FormatterAutoCommandInit()
         autocmd BufWritePost * call MyFormatWrite()
     augroup END
 
     function MyFormatWrite()
         let l:filetype = FormatterAutoCommandGetFiletype()
 
-        if g:formatter_auto_format_enabled[l:filetype] == 1
+        " if for some reason the init function was not called for the current buffer, call it now
+        if !has_key(g:formatter_auto_format_enabled, l:filetype)
+            echo "Formatter auto command has not been initialized for this buffer, calling FormatterAutoCommandInit()"
+            call FormatterAutoCommandInit()
+        endif
+
+        if g:formatter_auto_format_enabled[l:filetype]
            FormatWrite
         endif
     endfunction
@@ -241,4 +279,5 @@ vim.cmd([[
 vim.cmd([[nnoremap <silent> <leader>ff :Format<CR>]])
 vim.cmd([[nnoremap <silent> <leader>fw :FormatWrite<CR>]])
 vim.cmd([[nnoremap <silent> <leader>ft :FormatWriteAutoCmdToggle<CR>]])
-vim.cmd([[nnoremap <silent> <leader>fs :FormatWriteAutoCmdStatus<CR>]])
+vim.cmd([[nnoremap <silent> <leader>fs :FormatWriteAutoCmdStatus v:true<CR>]])
+vim.cmd([[nnoremap <silent> <leader>fS :FormatWriteAutoCmdStatus v:false<CR>]])
