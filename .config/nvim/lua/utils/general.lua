@@ -6,9 +6,12 @@ end
 local printArrayRecurse, printTableRecurse
 
 -- print array recursively
-printArrayRecurse = function(prelude, arr, level)
-	if level == nil then
-		level = 0
+printArrayRecurse = function(prelude, arr, level, maxLevel)
+	level = level or 0
+	maxLevel = maxLevel or -1
+
+	if level == maxLevel then
+		return
 	end
 
 	print(prelude .. "[")
@@ -18,9 +21,9 @@ printArrayRecurse = function(prelude, arr, level)
 		for _, e in pairs(arr) do
 			if type(e) == "table" then
 				if isArray(e) then
-					printArrayRecurse(indent, e, level + 1)
+					printArrayRecurse(indent, e, level + 1, maxLevel)
 				else
-					printTableRecurse(indent, e, level + 1)
+					printTableRecurse(indent, e, level + 1, maxLevel)
 				end
 			else
 				print(indent .. " (" .. type(e) .. ") " .. tostring(e) .. ",")
@@ -36,9 +39,12 @@ printArrayRecurse = function(prelude, arr, level)
 end
 
 -- print table recursively
-printTableRecurse = function(prelude, tab, level)
-	if level == nil then
-		level = 0
+printTableRecurse = function(prelude, tab, level, maxLevel)
+	level = level or 0
+	maxLevel = maxLevel or -1
+
+	if level == maxLevel then
+		return
 	end
 
 	print(prelude .. "{")
@@ -48,9 +54,9 @@ printTableRecurse = function(prelude, tab, level)
 		for k, e in pairs(tab) do
 			if type(e) == "table" then
 				if isArray(e) then
-					printArrayRecurse(indent .. k .. " : ", e, level + 1)
+					printArrayRecurse(indent .. k .. " : ", e, level + 1, maxLevel)
 				else
-					printTableRecurse(indent .. k .. " : ", e, level + 1)
+					printTableRecurse(indent .. k .. " : ", e, level + 1, maxLevel)
 				end
 			else
 				print(indent .. k .. " : (" .. type(e) .. ") " .. tostring(e) .. ",")
@@ -79,16 +85,13 @@ local function printArray(arr, sep, prelude, ending)
 	print(arrayToStringSimple(arr, sep, prelude, ending))
 end
 
-local function formatColor(str)
-	return "\27[01;30;46m" .. str .. "\27[00m"
-end
-
 -- if you don't know what kind of type you want to print, use this function
 -- this function will print recursively if the type is a table
 -- you should pass the argument as a new table if you want to print multiple things
 -- like this : betterPrint({arg1, arg2}) or betterPrint({name1=arg1, name2=arg2})
-local function betterPrint(args, color)
-	color = color or false
+local function betterPrint(args, maxLevel)
+	maxLevel = maxLevel or -1
+
 	args = args or {}
 	if type(args) ~= "table" then
 		print(args)
@@ -101,24 +104,12 @@ local function betterPrint(args, color)
 	for name, tab in pairs(idk) do
 		if type(tab) == "table" then
 			if isArray(tab) then
-				if color then
-					printArrayRecurse(name .. " (" .. formatColor("array") .. ") : ", tab, level)
-				else
-					printArrayRecurse(name .. " (array) : ", tab, level)
-				end
+				printArrayRecurse(name .. " (array) : ", tab, level, maxLevel)
 			else
-				if color then
-					printTableRecurse(name .. " (" .. formatColor("table") .. ") : ", tab, level)
-				else
-					printTableRecurse(name .. " (table) : ", tab, level)
-				end
+				printTableRecurse(name .. " (table) : ", tab, level, maxLevel)
 			end
 		else
-			if color then
-				print(name .. " (" .. formatColor(type(tab)) .. ") : ", tab)
-			else
-				print(name .. " (" .. type(tab) .. ") : ", tab)
-			end
+			print(name .. " (" .. type(tab) .. ") : ", tab)
 		end
 	end
 end
@@ -161,6 +152,61 @@ local function isInTable(value, array)
 	return false
 end
 
+---returns full path to git directory for dir_path or current directory
+---stolen from 'lualine.nvim/lua/lualine/components/branch/git_branch.lua'
+---@param dir_path string|nil
+---@return string|nil
+local function find_git_dir(dir_path)
+	local git_dir_cache = {} -- Stores git paths that we already know of
+	local sep = "/"
+	local git_dir = vim.env.GIT_DIR
+	if git_dir then
+		return git_dir
+	end
+
+	-- get file dir so we can search from that dir
+	local file_dir = dir_path or vim.fn.expand("%:p:h")
+	local root_dir = file_dir
+	-- Search upward for .git file or folder
+	while root_dir do
+		if git_dir_cache[root_dir] then
+			git_dir = git_dir_cache[root_dir]
+			break
+		end
+		local git_path = root_dir .. sep .. ".git"
+		local git_file_stat = vim.loop.fs_stat(git_path)
+		if git_file_stat then
+			if git_file_stat.type == "directory" then
+				git_dir = git_path
+			elseif git_file_stat.type == "file" then
+				-- separate git-dir or submodule is used
+				local file = io.open(git_path)
+				if file then
+					git_dir = file:read()
+					git_dir = git_dir and git_dir:match("gitdir: (.+)$")
+					file:close()
+				end
+				-- submodule / relative file path
+				if git_dir and git_dir:sub(1, 1) ~= sep and not git_dir:match("^%a:.*$") then
+					git_dir = git_path:match("(.*).git") .. git_dir
+				end
+			end
+			if git_dir then
+				local head_file_stat = vim.loop.fs_stat(git_dir .. sep .. "HEAD")
+				if head_file_stat and head_file_stat.type == "file" then
+					break
+				else
+					git_dir = nil
+				end
+			end
+		end
+		root_dir = root_dir:match("(.*)" .. sep .. ".-")
+	end
+
+	git_dir_cache[file_dir] = git_dir
+	return git_dir
+end
+
 return {
 	print = betterPrint,
 	fileExist = fileExist,
@@ -169,4 +215,5 @@ return {
 	arrayToStringSimple = arrayToStringSimple,
 	printArray = printArray,
 	isInTable = isInTable,
+	findGitDir = find_git_dir,
 }
