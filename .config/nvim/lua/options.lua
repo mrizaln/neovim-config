@@ -16,8 +16,10 @@ vim.opt.shiftwidth = 0 -- match tabstop
 vim.opt.softtabstop = 4
 vim.opt.expandtab = true -- convert tab to spaces
 vim.opt.showbreak = "↪"
--- vim.opt.wrap = true
 vim.opt.wrap = false
+
+vim.opt.list = true
+vim.opt.listchars = [[leadmultispace:   ▕,tab:  ▕,trail:.,extends:…,precedes:…,nbsp:�]]
 
 vim.opt.scrolloff = 10
 
@@ -39,7 +41,7 @@ vim.opt.showmode = false
 
 -- vim.opt.inccommand = nil
 
-vim.cmd([[set cc=80,90,120]]) -- 90 column border
+vim.cmd([[set cc=80,90,120]]) -- column border
 
 --
 vim.opt.updatetime = 400 -- vim-signify async

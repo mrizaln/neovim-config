@@ -20,7 +20,7 @@ vim.cmd([[
 
 vim.api.nvim_create_user_command("DeleteHiddenBuffers", function()
 	vim.cmd([[call DeleteHiddenBuffers_func()]])
-end, {})
+end, { bang = true })
 
 -- [ toggle background color to and from 'none' (original terminal color) ]
 local configured_background = {

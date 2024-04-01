@@ -38,6 +38,29 @@ if ok then
 	capabilites = cmp_lsp.default_capabilities()
 end
 
+local function configure_clangd()
+	require("lspconfig")["clangd"].setup({
+		capabilites = capabilites,
+		cmd = {
+			"clangd",
+			-- by default, clang-tidy use -checks=clang-diagnostic-*,clang-analyzer-*
+			-- to add more checks, create .clang-tidy file in the root directory
+			-- and add Checks key, see https://clang.llvm.org/extra/clang-tidy/
+			"--clang-tidy",
+			"--background-index=false",
+			"--completion-style=bundled",
+			"--header-insertion=iwyu",
+			-- "--header-insertion=never",
+			"--offset-encoding=utf-16",
+			"-j=4", -- worker threads
+			"--malloc-trim=true", -- glibc platform only
+			"--ranking-model=decision_forest",
+			-- "--completion-style=detailed",
+			-- "--function-arg-placeholders=true", -- not working for some reason
+		},
+	})
+end
+
 -- for LSPs installed using Mason
 require("mason-lspconfig").setup_handlers({
 	--------------------[ default handler ]--------------------
@@ -55,22 +78,7 @@ require("mason-lspconfig").setup_handlers({
 	-----------------------[ overrides ]-----------------------
 	-- clangd
 	["clangd"] = function()
-		require("lspconfig")["clangd"].setup({
-			capabilites = capabilites,
-			cmd = {
-				"clangd",
-				-- by default, clang-tidy use -checks=clang-diagnostic-*,clang-analyzer-*
-				-- to add more checks, create .clang-tidy file in the root directory
-				-- and add Checks key, see https://clang.llvm.org/extra/clang-tidy/
-				"--clang-tidy",
-				-- "--background-index",
-				"--completion-style=bundled",
-				"--header-insertion=iwyu",
-				-- "--header-insertion=never",
-				"--offset-encoding=utf-16",
-				"-j=6", -- worker threads
-			},
-		})
+		configure_clangd()
 	end,
 
 	-- lua
@@ -155,22 +163,7 @@ require("mason-lspconfig").setup_handlers({
 })
 
 -- for LSPs not installed using Mason
-require("lspconfig")["clangd"].setup({
-	capabilites = capabilites,
-	cmd = {
-		"clangd",
-		-- by default, clang-tidy use -checks=clang-diagnostic-*,clang-analyzer-*
-		-- to add more checks, create .clang-tidy file in the root directory
-		-- and add Checks key, see https://clang.llvm.org/extra/clang-tidy/
-		"--clang-tidy",
-		-- "--background-index",
-		"--completion-style=bundled",
-		"--header-insertion=iwyu",
-		-- "--header-insertion=never",
-		"--offset-encoding=utf-16",
-		"-j=6", -- worker threads
-	},
-})
+configure_clangd()
 
 -- require("lspconfig.configs")["pyls"] = {
 -- 	default_config = {

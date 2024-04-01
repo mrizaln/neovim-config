@@ -36,6 +36,14 @@ local current_bufnr = vim.api.nvim_get_current_buf()
 local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(current_bufnr))
 if ok and stats and stats.size > max_filesize then
 	print("Warning!\nFile is too large! (" .. math.floor(stats.size / 1024) .. " KiB)")
+	local response_ok, response = pcall(vim.fn.input, { prompt = "Proceed anyways? [y/N] ", cancelreturn = "N" })
+	if not response_ok then
+		os.exit(1)
+	elseif response:match("[Yy]") then
+		print("\nNeovim will proceed to open file")
+	else
+		os.exit(1)
+	end
 	vim.cmd([[
         set foldmethod=manual
         syntax clear

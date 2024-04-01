@@ -29,7 +29,7 @@ vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 		end
 
 		-- no lsp support; match current word instead
-		vim.cmd([[call matchadd('LspReferenceText', '\<' . expand('<cword>') . '\>', -1)]])
+		vim.cmd([[call matchadd('LspReferenceText', '\<' . escape(expand('<cword>'), '%#<*:\.') . '\>', -1)]])
 	end,
 	pattern = "*",
 	group = "LspDocumentHighlight",
@@ -45,6 +45,73 @@ vim.api.nvim_create_autocmd("CursorMoved", {
 	desc = "Clear All the References",
 })
 --------------------------------------------------------------
+
+--
+--------------------[ PromptBigOpenBigFile ]------------------
+--
+-- -- NOTE: can't figure out how to cancel reading the buffer
+--
+-- vim.api.nvim_create_augroup("BigFileDisable", { clear = true })
+-- vim.api.nvim_create_autocmd({ "BufReadPre" }, {
+-- 	callback = function()
+-- 		local max_filesize = 10000 * 1024 -- 10 MB
+-- 		local current_bufnr = vim.api.nvim_get_current_buf()
+-- 		local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(current_bufnr))
+-- 		if ok and stats and stats.size > max_filesize then
+-- 			print("Warning!\nFile is too large! (" .. math.floor(stats.size / 1024) .. " KiB)")
+-- 			local response_ok, response =
+-- 				pcall(vim.fn.input, { prompt = "Proceed anyways? [y/N] ", cancelreturn = "N" })
+-- 			if not response_ok then
+-- 				os.exit(1) -- will just close neovim
+-- 			elseif response:match("[Yy]") then
+-- 				print("\nNeovim will proceed to open file")
+-- 			else
+-- 				os.exit(1) -- will just close neovim
+-- 			end
+-- 			vim.cmd([[
+--                 set foldmethod=manual
+--                 syntax clear
+--                 syntax off
+--                 filetype off
+--                 set noundofile
+--                 set noswapfile
+--                 set noloadplugins
+--                 " set nowrap
+--             ]])
+-- 		end
+-- 	end,
+-- 	pattern = "*",
+-- 	group = "BigFileDisable",
+-- 	desc = "Prompt user whether to proceed opening bif file or not",
+-- })
+--------------------------------------------------------------
+vim.cmd([[
+    " Define a function to check file size before opening
+    function! CheckFileSize()
+        let l:filesize = getfsize(expand('%'))
+        if l:filesize > 1048576 " Adjust this value to set your threshold (e.g., 1MB)
+            let l:confirm = confirm("File size is large (" . l:filesize . " bytes). Are you sure you want to open it?", "&Yes\n&No", 2)
+            if l:confirm != 1
+                throw "Large file. Aborting open operation."
+            else
+                set foldmethod=manual
+                syntax clear
+                syntax off
+                filetype off
+                set noundofile
+                set noswapfile
+                set noloadplugins
+                " set nowrap
+            endif
+        endif
+    endfunction
+
+    " Hook the function to the BufReadPre autocmd
+    augroup LargeFilePrompt
+        autocmd!
+        autocmd BufReadPre * :call CheckFileSize()
+    augroup END
+]])
 
 --
 -----[ set filetype to conf for file with .conf extension]----
@@ -177,3 +244,7 @@ vim.cmd([[
     endfunction
 ]])
 --------------------------------------------------------------
+
+-- Consider *.dsm files as files containing disassembly from RetDec.
+-- from: https://github.com/s3rvac/vim-syntax-retdecdsm
+vim.cmd([[autocmd BufNewFile,BufRead *.dsm set filetype=retdecdsm]])
