@@ -1,4 +1,8 @@
-require("nvim-tree").setup()
+require("nvim-tree").setup({
+	sort = {
+		sorter = "filetype",
+	},
+})
 
 local keymap = vim.api.nvim_set_keymap
 local opts = { noremap = true, silent = true }

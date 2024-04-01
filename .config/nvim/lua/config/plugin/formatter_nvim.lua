@@ -56,6 +56,20 @@ local prettier = function()
 	return _prettier
 end
 
+-- local rustfmt = function()
+-- 	local fileExist = _G.myUtils.fileExist
+-- 	local style_file = os.getenv("HOME") .. "/.config/rustfmt/"
+-- 	if not fileExist(style_file) then
+-- 		return require("formatter.filetypes.rust").rustfmt
+-- 	else
+-- 		return {
+-- 			exe = "rustfmt",
+-- 			args = { "--edition 2021", "--config-path", style_file },
+-- 			stdin = true,
+-- 		}
+-- 	end
+-- end
+
 -- Provides the Format, FormatWrite, FormatLock, and FormatWriteLock commands
 require("formatter").setup({
 	-- Enable or disable logging
@@ -98,6 +112,7 @@ require("formatter").setup({
 
 		lua = require("formatter.filetypes.lua").stylua,
 
+		cmake = require("formatter.filetypes.cmake").cmakeformat,
 		c = clangformat,
 		cpp = clangformat,
 		glsl = clangformat,
@@ -108,11 +123,17 @@ require("formatter").setup({
 		json = require("formatter.filetypes.json").prettier,
 
 		xml = require("formatter.filetypes.xml").tidy,
-		html = require("formatter.filetypes.html").tidy,
+		html = require("formatter.filetypes.html").prettier,
 
 		python = require("formatter.filetypes.python").black,
 
-		rust = require("formatter.filetypes.rust").rustfmt,
+		rust = function()
+			local rustfmt = require("formatter.filetypes.rust").rustfmt()
+			table.insert(rustfmt.args, "-q") -- add quiet option
+			table.insert(rustfmt.args, "2>")
+			table.insert(rustfmt.args, "/dev/null")
+			return rustfmt
+		end,
 
 		markdown = prettier,
 
