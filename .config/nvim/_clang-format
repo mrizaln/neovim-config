@@ -1,3 +1,5 @@
+# vi: ft=yaml
+
 # important ones
 AccessModifierOffset: -4
 ColumnLimit: 120
@@ -49,6 +51,7 @@ AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: true
+# AllowShortCompoundRequirementOnASingleLine: true  # clang-format 18
 
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
@@ -130,11 +133,11 @@ InsertTrailingCommas: Wrapped
 
 IntegerLiteralSeparator:
   Binary: 4             # half-byte
-  BinaryMinDigits: 0
-  Decimal: 3            # thousahnd
-  DecimalMinDigits: 0
-  Hex: 4                # byte
-  HexMinDigits: 0
+  BinaryMinDigits: 9
+  Decimal: 3            # thousand
+  DecimalMinDigits: 7
+  Hex: 4                # 4-byte
+  HexMinDigits: 9
 
 KeepEmptyLinesAtTheStartOfBlocks: true
 MaxEmptyLinesToKeep: 1
@@ -151,7 +154,7 @@ PenaltyBreakBeforeFirstCallParameter: 10
 PenaltyBreakComment: 100
 PenaltyBreakFirstLessLess: 100
 PenaltyBreakOpenParenthesis: 10
-PenaltyBreakString: 10
+PenaltyBreakString: 1000
 PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 1000
 PenaltyIndentedWhitespace: 0
@@ -214,16 +217,24 @@ SpacesInLineCommentPrefix:
   Maximum: -1
 SpacesInSquareBrackets: false
 Standard: Latest
+TabWidth: 4
+UseTab: Never
 StatementAttributeLikeMacros:
   - Q_EMIT
 StatementMacros:
   - Q_UNUSED
   - QT_REQUIRE_VERSION
-TabWidth: 4
-UseTab: Never
+  - MATCH
 WhitespaceSensitiveMacros:
   - BOOST_PP_STRINGIZE
   - CF_SWIFT_NAME
   - NS_SWIFT_NAME
   - PP_STRINGIZE
   - STRINGIZE
+IfMacros:
+  - DEFER     # defer is not a conditional macros but it looks better if it has conditional style applied to it
+  - DEFER_C
+  - DO_TIME   # same case as above
+  - DO_TIME_MS
+  - DO_TIME_US
+  # - MATCH
