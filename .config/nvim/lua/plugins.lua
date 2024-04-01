@@ -4,33 +4,24 @@ require("packer").startup(function()
 
 	-- colorscheme --
 	-----------------
-	use("AlexvZyl/nordic.nvim")
+	-- use("AlexvZyl/nordic.nvim")
 	use("folke/tokyonight.nvim")
-	use("ray-x/aurora")
-	use("rmehri01/onenord.nvim")
-	use("sainnhe/sonokai")
-	use("Shatur/neovim-ayu")
-	use("tanvirtin/monokai.nvim")
+	-- use("ray-x/aurora")
+	-- use("rmehri01/onenord.nvim")
+	-- use("sainnhe/sonokai")
+	-- use("Shatur/neovim-ayu")
+	-- use("tanvirtin/monokai.nvim")
 	use("tomasr/molokai")
 	use({ "catppuccin/nvim", as = "catppuccin" })
-	use({ "challenger-deep-theme/vim", as = "challenger-deep-vim-theme" })
-	use({ "dracula/vim", as = "dracula-vim-theme" })
-	use({ "rose-pine/neovim", as = "rose-pine-vim-theme" })
+	-- use({ "challenger-deep-theme/vim", as = "challenger-deep-vim-theme" })
+	-- use({ "dracula/vim", as = "dracula-vim-theme" })
+	-- use({ "rose-pine/neovim", as = "rose-pine" })
+	use({ "katawful/kat.nvim", tag = "3.1" })
 	-----------------
 
 	-- quality of life --
 	---------------------
-	-- coppilot
-	-- use({
-	-- 	"github/copilot.vim",
-	-- 	config = function()
-	-- 		vim.cmd([[
-	--                imap <silent><script><expr> <a-space> copilot#Accept("\<CR>")
-	--                let g:copilot_no_tab_map = v:true
-	--            ]])
-	-- 	end,
-	-- })
-
+	-- -- coppilot
 	use({
 		"zbirenbaum/copilot.lua",
 		cmd = "Copilot",
@@ -112,21 +103,21 @@ require("packer").startup(function()
 		end,
 	})
 
-	-- indent-blankline (indentation guide)
-	use({
-		"lukas-reineke/indent-blankline.nvim",
-		config = function()
-			require("config/plugin/indent-blankline_nvim")
-		end,
-	})
+	-- -- indent-blankline (indentation guide)
+	-- use({
+	-- 	"lukas-reineke/indent-blankline.nvim",
+	-- 	config = function()
+	-- 		require("config/plugin/indent-blankline_nvim")
+	-- 	end,
+	-- })
 
-	-- ts-rainbow (rainbow bracket colors)
-	use({
-		"p00f/nvim-ts-rainbow",
-		config = function()
-			require("config/plugin/nvim-ts-rainbow")
-		end,
-	})
+	-- -- ts-rainbow (rainbow bracket colors)
+	-- use({
+	-- 	"p00f/nvim-ts-rainbow",
+	-- 	config = function()
+	-- 		require("config/plugin/nvim-ts-rainbow")
+	-- 	end,
+	-- })
 
 	-- nvim-autopairs
 	use({
@@ -136,17 +127,9 @@ require("packer").startup(function()
 		end,
 	})
 
-	-- neoscroll.nvim (smooth scrolling)
-	-- use({
-	-- 	"karb94/neoscroll.nvim",
-	-- 	config = function()
-	-- 		require("config/plugin/neoscroll_nvim")
-	-- 	end,
-	-- })
-
 	use({
 		"j-hui/fidget.nvim",
-		tag = "legacy",
+		tag = "v1.2.0",
 		config = function()
 			require("fidget").setup({})
 		end,
@@ -191,6 +174,7 @@ require("packer").startup(function()
 		requires = {
 			"williamboman/mason.nvim",
 			"mfussenegger/nvim-dap",
+			"nvim-neotest/nvim-nio",
 		},
 		-- config file: [~/.config/nvim/lua/dap_setup.lua]
 	})
@@ -208,12 +192,6 @@ require("packer").startup(function()
 			require("config/plugin/nvim-treesitter")
 		end,
 	})
-
-	-- linter
-	-- use {
-	--     "mfussenegger/nvim-lint",
-	--     config = function() require("config/plugin/nvim-lint") end,
-	-- }
 
 	-- formatter
 	use({
@@ -260,12 +238,33 @@ require("packer").startup(function()
 	--     end,
 	-- })
 
-	-- ultisnips (snippets engine)
+	-- -- ultisnips (snippets engine)
+	-- use({
+	-- 	"SirVer/ultisnips",
+	-- 	requires = { "honza/vim-snippets" },
+	-- 	config = function()
+	-- 		require("config/plugin/ultisnips")
+	-- 	end,
+	-- })
+
 	use({
-		"SirVer/ultisnips",
-		requires = { "honza/vim-snippets" },
+		"L3MON4D3/LuaSnip",
+		-- follow latest release.
+		tag = "v2.*",
+		-- install jsregexp (optional!:).
+		-- run = "make install_jsregexp"
+		requires = {
+			"honza/vim-snippets",
+		},
 		config = function()
-			require("config/plugin/ultisnips")
+			require("luasnip.loaders.from_snipmate").lazy_load()
+			local ls = require("luasnip")
+			vim.keymap.set({ "i", "s" }, "<C-L>", function()
+				ls.jump(1)
+			end, { silent = true })
+			vim.keymap.set({ "i", "s" }, "<C-J>", function()
+				ls.jump(-1)
+			end, { silent = true })
 		end,
 	})
 
@@ -277,8 +276,12 @@ require("packer").startup(function()
 			"hrsh7th/cmp-buffer",
 			"hrsh7th/cmp-path",
 			"hrsh7th/cmp-cmdline",
-			"SirVer/ultisnips", -- required by nvim-cmp
-			"quangnguyen30192/cmp-nvim-ultisnips", -- required by ultisnips on nvim-cmp
+
+			-- snippet engine
+			-- "SirVer/ultisnips",
+			-- "quangnguyen30192/cmp-nvim-ultisnips",
+			"L3MON4D3/LuaSnip",
+			"saadparwaiz1/cmp_luasnip",
 		},
 		config = function()
 			require("config/plugin/nvim-cmp")
@@ -373,22 +376,22 @@ require("packer").startup(function()
 		end,
 	})
 
-	-- markdown previewer
-	use({
-		"ellisonleao/glow.nvim",
-		config = function()
-			require("glow").setup({
-				-- glow_path = "",  -- auto if exist
-				-- install_path = "~/.local/bin", -- default path for installing glow binary
-				-- border = "shadow", -- floating window border config
-				style = "dark",
-				-- pager = false,
-				width = 120,
-				-- height = 100,
-				-- width_ratio = 0.7, -- maximum width of the Glow window compared to the nvim window size (overrides `width`)
-				-- height_ratio = 0.7,
-			})
-		end,
-	})
+	-- -- markdown previewer
+	-- use({
+	-- 	"ellisonleao/glow.nvim",
+	-- 	config = function()
+	-- 		require("glow").setup({
+	-- 			-- glow_path = "",  -- auto if exist
+	-- 			-- install_path = "~/.local/bin", -- default path for installing glow binary
+	-- 			-- border = "shadow", -- floating window border config
+	-- 			style = "dark",
+	-- 			-- pager = false,
+	-- 			width = 120,
+	-- 			-- height = 100,
+	-- 			-- width_ratio = 0.7, -- maximum width of the Glow window compared to the nvim window size (overrides `width`)
+	-- 			-- height_ratio = 0.7,
+	-- 		})
+	-- 	end,
+	-- })
 	-----------
 end)
