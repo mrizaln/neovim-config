@@ -116,30 +116,70 @@ else
 	-- vim.api.nvim_set_keymap("n", "<c-K>", ":lua vim.lsp.buf.signature_help()", opts)
 	-- vim.api.nvim_set_keymap("i", "<c-K>", ":lua vim.lsp.buf.signature_help()", opts)
 end
+--
+--[ toggle inlay hints ]--
+local function toggle_inlay_hints()
+	local clients = vim.lsp.get_clients({ bufnr = 0 })
+	if #clients == 0 then
+		vim.notify("No LSP client found", vim.log.levels.WARN)
+		return
+	end
+	for _, client in ipairs(clients) do
+		if client.server_capabilities.inlayHintProvider then
+			vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = 0 }), { bufnr = 0 })
+		end
+	end
+end
+
+vim.keymap.set("n", "<leader>ih", toggle_inlay_hints, { desc = "Toggle inlay hints" })
 
 --
 --[ additional keybind ]--
 --------------------------------------------------------------------------------
--- disable clang-format at selected block (only on c, cpp, js, ts)
-local filename = vim.fn.bufname()
-local fileSplit = _G.myUtils.splitString(filename, ".")
-local fileTypes = { "c", "h", "cpp", "hpp", "js", "ts" }
-for _, v in pairs(fileTypes) do
-	local filetype = fileSplit[#fileSplit]
-	-- if fileSplit[#fileSplit] == v then
-	if filetype == v then
-		vim.api.nvim_set_keymap(
-			"v",
-			"fd",
-			-- "<Esc>o// clang-format on<Esc>gvO<Esc>O// clang-format off<Esc>gvO",
-			"<Esc>o// clang-format on<Esc>gvO<Esc>O// clang-format off<Esc>gvO<Esc>",
-			{ noremap = true }
-		)
-		break
+
+--[ filetype specific keybinds ]--
+--
+-- NOTE: not working, try to call this function from an autocmd after the filetype is set
+local function filetype_keybinds(filetypes, mode, lhs, rhs, opts)
+	local ft = vim.api.nvim_get_option_value("filetype", { scope = "local" })
+	if vim.tbl_contains(filetypes, ft) then
+		vim.keymap.set(mode, lhs, rhs, opts)
 	end
 end
 
--- if vim.api.nvim_buf_get_option(0, "filetype") == "hpp" then
-vim.api.nvim_set_keymap("v", "<leader>c", "xistatic_cast<>()<esc>P`[v`]o<esc>ba", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("v", "<leader>m", "xistd::move()<esc>Pw", { noremap = true, silent = true })
--- end
+local filetype_specific_keybinds = {
+	[1] = {
+		{ "c", "h", "cpp", "hpp", "js", "ts" },
+		"v",
+		"fd",
+		"<Esc>o// clang-format on<Esc>gvO<Esc>O// clang-format off<Esc>gvO",
+		{ noremap = true },
+	},
+	[2] = {
+		{ "cpp" },
+		"v",
+		"<leader>c",
+		"xistatic_cast<>()<esc>P`[v`]o<esc>ba",
+		{ noremap = true, silent = true },
+	},
+	[3] = {
+		{ "cpp" },
+		"v",
+		"<leader>m",
+		"xistd::move()<esc>Pw",
+		{ noremap = true, silent = true },
+	},
+}
+
+vim.api.nvim_create_autocmd({ "FileType" }, {
+	callback = function()
+		local ft = vim.api.nvim_get_option_value("filetype", { scope = "local" })
+		for _, keybind in ipairs(filetype_specific_keybinds) do
+			if vim.tbl_contains(keybind[1], ft) then
+				vim.keymap.set(keybind[2], keybind[3], keybind[4], keybind[5])
+			end
+		end
+	end,
+	pattern = "*",
+	desc = "filetype keybinds",
+})

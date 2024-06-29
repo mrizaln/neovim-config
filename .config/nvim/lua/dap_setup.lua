@@ -40,4 +40,4 @@ require("mason-nvim-dap").setup({
 })
 
 -- C/C++/Rust (using codelldb)
--- require("config/dap/server-config/codelldb")
+require("config/dap/server-config/codelldb")

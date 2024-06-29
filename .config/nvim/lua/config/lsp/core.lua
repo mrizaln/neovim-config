@@ -54,9 +54,11 @@ local function configure_clangd()
 			"--offset-encoding=utf-16",
 			"-j=4", -- worker threads
 			"--malloc-trim=true", -- glibc platform only
-			"--ranking-model=decision_forest",
+			-- "--ranking-model=decision_forest",
+			"--ranking-model=heuristics",
 			-- "--completion-style=detailed",
 			-- "--function-arg-placeholders=true", -- not working for some reason
+			-- "--all-scopes-completion=false", -- turn off annoying completion from other scopes
 		},
 	})
 end
@@ -66,6 +68,11 @@ require("mason-lspconfig").setup_handlers({
 	--------------------[ default handler ]--------------------
 	function(server_name) -- default handler (optional)
 		require("lspconfig")[server_name].setup({
+			on_attach = function(client)
+				if client.server_capabilities.inlayHintProvider then
+					vim.lsp.inlay_hint.enable(true)
+				end
+			end,
 			capabilites = capabilites,
 			-- settings = {
 			--     completion = {

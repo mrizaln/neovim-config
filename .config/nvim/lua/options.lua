@@ -19,7 +19,8 @@ vim.opt.showbreak = "↪"
 vim.opt.wrap = false
 
 vim.opt.list = true
-vim.opt.listchars = [[leadmultispace:   ▕,tab:  ▕,trail:.,extends:…,precedes:…,nbsp:�]]
+-- vim.opt.listchars = [[leadmultispace:   ▕,tab:  ▕,trail:.,extends:…,precedes:…,nbsp:�]]
+vim.opt.listchars = [[leadmultispace:▏   ,tab:▏  ,trail:.,extends:…,precedes:…,nbsp:�]]
 
 vim.opt.scrolloff = 10
 
@@ -41,10 +42,14 @@ vim.opt.showmode = false
 
 -- vim.opt.inccommand = nil
 
-vim.cmd([[set cc=80,90,120]]) -- column border
+vim.cmd([[set cc=80,90,100]]) -- column border
+
+-- ignore case on search
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
 
 --
-vim.opt.updatetime = 400 -- vim-signify async
+vim.opt.updatetime = 250 -- vim-signify async
 
 -- https://github.com/neovim/neovim/wiki/FAQ#how-to-change-cursor-color-in-the-terminal
 -- vim.cmd([[

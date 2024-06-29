@@ -4,6 +4,23 @@ local function wordAndCharCount()
 	return "c:" .. count.chars .. "|w:" .. count.words .. "|l:" .. count.lines
 end
 
+local function lualine_b_content()
+	local name = os.getenv("USER")
+	if name == "root" then
+		-- return "%#warning#root"
+		return {
+			function()
+				return "[root]"
+			end,
+			"branch",
+			"diff",
+			"diagnostics",
+		}
+	else
+		return { "branch", "diff", "diagnostics" }
+	end
+end
+
 require("lualine").setup({
 	options = {
 		globalstatus = true, -- works only in neovim 0.7 and higher
@@ -11,6 +28,7 @@ require("lualine").setup({
 	sections = {
 		-- lualine_a = { "mode" },
 		-- lualine_b = { "branch", "diff", "diagnostics" },
+		lualine_b = lualine_b_content(),
 		-- lualine_c = { "filename" },
 		-- lualine_x = { "encoding", "fileformat", "filetype" },
 		lualine_y = { "progress", wordAndCharCount },

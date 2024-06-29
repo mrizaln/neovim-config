@@ -1,7 +1,6 @@
------------------------------[ autocommands ]-----------------------------------
-
---
----------------[ highlight variables (or word) ]--------------
+--------------------------------------------------------------------------------
+------------------------[ highlight variables (or word) ]-----------------------
+--------------------------------------------------------------------------------
 --
 -- ref: https://sbulav.github.io/til/til-neovim-highlight-references/
 --
@@ -44,47 +43,11 @@ vim.api.nvim_create_autocmd("CursorMoved", {
 	group = "LspDocumentHighlight",
 	desc = "Clear All the References",
 })
---------------------------------------------------------------
+--------------------------------------------------------------------------------
 
---
---------------------[ PromptBigOpenBigFile ]------------------
---
--- -- NOTE: can't figure out how to cancel reading the buffer
---
--- vim.api.nvim_create_augroup("BigFileDisable", { clear = true })
--- vim.api.nvim_create_autocmd({ "BufReadPre" }, {
--- 	callback = function()
--- 		local max_filesize = 10000 * 1024 -- 10 MB
--- 		local current_bufnr = vim.api.nvim_get_current_buf()
--- 		local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(current_bufnr))
--- 		if ok and stats and stats.size > max_filesize then
--- 			print("Warning!\nFile is too large! (" .. math.floor(stats.size / 1024) .. " KiB)")
--- 			local response_ok, response =
--- 				pcall(vim.fn.input, { prompt = "Proceed anyways? [y/N] ", cancelreturn = "N" })
--- 			if not response_ok then
--- 				os.exit(1) -- will just close neovim
--- 			elseif response:match("[Yy]") then
--- 				print("\nNeovim will proceed to open file")
--- 			else
--- 				os.exit(1) -- will just close neovim
--- 			end
--- 			vim.cmd([[
---                 set foldmethod=manual
---                 syntax clear
---                 syntax off
---                 filetype off
---                 set noundofile
---                 set noswapfile
---                 set noloadplugins
---                 " set nowrap
---             ]])
--- 		end
--- 	end,
--- 	pattern = "*",
--- 	group = "BigFileDisable",
--- 	desc = "Prompt user whether to proceed opening bif file or not",
--- })
---------------------------------------------------------------
+--------------------------------------------------------------------------------
+------------------------------[ PromptBigOpenBigFile ]--------------------------
+--------------------------------------------------------------------------------
 vim.cmd([[
     " Define a function to check file size before opening
     function! CheckFileSize()
@@ -112,16 +75,11 @@ vim.cmd([[
         autocmd BufReadPre * :call CheckFileSize()
     augroup END
 ]])
+--------------------------------------------------------------------------------
 
---
------[ set filetype to conf for file with .conf extension]----
---
--- vim.cmd([[autocmd BufRead,BufNewFile *.conf setfiletype conf]])
---------------------------------------------------------------
-
---
------------------[ filetype specific commands ]---------------
---
+--------------------------------------------------------------------------------
+--------------------------[ filetype specific commands ]------------------------
+--------------------------------------------------------------------------------
 vim.cmd([[
     " filter undoes from TextChanged event "
     function RunNotUndoElse(run, else_run)
@@ -158,10 +116,11 @@ vim.cmd([[
     " conanfile.txt
     autocmd BufNewFile,BufRead conanfile.txt setlocal filetype=ini
 ]])
---------------------------------------------------------------
+--------------------------------------------------------------------------------
 
---
-------------[ ignore capital letters misspelling ]------------
+--------------------------------------------------------------------------------
+---------------------[ ignore capital letters misspelling ]---------------------
+--------------------------------------------------------------------------------
 vim.cmd([[
     fun! IgnoreCamelCaseSpell()
         syn match myExCapitalWords +\<\w*[A-Z]\K*\>+ contains=@NoSpell
@@ -172,33 +131,33 @@ vim.cmd([[
         autocmd FileType !markdown BufRead,BufNewFile * :call IgnoreCamelCaseSpell()
     augroup END
 ]])
---------------------------------------------------------------
+--------------------------------------------------------------------------------
 
---
------[ jumps to the last position upon reopening a file ]-----
---
+--------------------------------------------------------------------------------
+--------------[ jumps to the last position upon reopening a file ]--------------
+--------------------------------------------------------------------------------
 vim.cmd([[
     augroup JumpToLastPositionOnBufRead
         autocmd!
         autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | execute "normal! g'\"" | endif
     augroup END
 ]])
---------------------------------------------------------------
+--------------------------------------------------------------------------------
 
---
---[ highlight yanked text for 200ms using the "Visual" highlight group ]--
---
+--------------------------------------------------------------------------------
+-----[ highlight yanked text for 200ms using the "Visual" highlight group ]-----
+--------------------------------------------------------------------------------
 vim.cmd([[
     augroup HighlightYank
         autocmd!
         autocmd TextYankPost * silent! lua vim.highlight.on_yank({higroup="Visual", timeout=400})
     augroup END
 ]])
---------------------------------------------------------------
+--------------------------------------------------------------------------------
 
---
---[ keep cursor at `scrolloff` distance from end of window ]--
---
+--------------------------------------------------------------------------------
+-----------[ keep cursor at `scrolloff` distance from end of window ]-----------
+--------------------------------------------------------------------------------
 vim.cmd([[
     augroup KeepFromBottom
         autocmd!
@@ -243,8 +202,36 @@ vim.cmd([[
         endif
     endfunction
 ]])
---------------------------------------------------------------
+--------------------------------------------------------------------------------
 
+--------------------------------------------------------------------------------
 -- Consider *.dsm files as files containing disassembly from RetDec.
 -- from: https://github.com/s3rvac/vim-syntax-retdecdsm
 vim.cmd([[autocmd BufNewFile,BufRead *.dsm set filetype=retdecdsm]])
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+----------------------------[ custom file extension ]---------------------------
+--------------------------------------------------------------------------------
+--
+-- for cpp2
+vim.api.nvim_create_augroup("CustomFileType", { clear = true })
+
+local function set_custon_filetype_aucmd(ext_table, filetype)
+	for _, ext in ipairs(ext_table) do
+		vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+			callback = function()
+				vim.opt_local.filetype = filetype
+			end,
+
+			pattern = "*." .. ext,
+			group = "CustomFileType",
+			desc = "Custom File Type",
+		})
+	end
+end
+
+set_custon_filetype_aucmd({ "cpp2, cc2, hpp2, h2" }, "cpp2")
+set_custon_filetype_aucmd({ "conf" }, "conf")
+set_custon_filetype_aucmd({ "glsl", "vert", "tesc", "tese", "frag", "geom", "comp", "vs", "fs" }, "glsl")
+--------------------------------------------------------------------------------

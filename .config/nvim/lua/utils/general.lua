@@ -5,6 +5,15 @@ end
 
 local printArrayRecurse, printTableRecurse
 
+-- get arguments of a function
+local function getArgs(func)
+	local args = {}
+	for i = 1, debug.getinfo(func).nparams, 1 do
+		table.insert(args, debug.getlocal(func, i))
+	end
+	return args
+end
+
 -- print array recursively
 printArrayRecurse = function(prelude, arr, level, maxLevel)
 	level = level or 0
@@ -18,13 +27,15 @@ printArrayRecurse = function(prelude, arr, level, maxLevel)
 
 	local indent = string.rep(" ", (level + 1) * 4)
 	if arr ~= nil then
-		for _, e in pairs(arr) do
+		for n, e in pairs(arr) do
 			if type(e) == "table" then
 				if isArray(e) then
 					printArrayRecurse(indent, e, level + 1, maxLevel)
 				else
 					printTableRecurse(indent, e, level + 1, maxLevel)
 				end
+			elseif type(e) == "function" then
+				printArrayRecurse(indent .. n .. " (fn) : ", getArgs(e), level + 1, maxLevel)
 			else
 				print(indent .. " (" .. type(e) .. ") " .. tostring(e) .. ",")
 			end
@@ -58,6 +69,8 @@ printTableRecurse = function(prelude, tab, level, maxLevel)
 				else
 					printTableRecurse(indent .. k .. " : ", e, level + 1, maxLevel)
 				end
+			elseif type(e) == "function" then
+				printArrayRecurse(indent .. k .. " (fn) : ", getArgs(e), level + 1, maxLevel)
 			else
 				print(indent .. k .. " : (" .. type(e) .. ") " .. tostring(e) .. ",")
 			end
@@ -73,6 +86,10 @@ end
 
 -- return a string, every element will be converted using built-in tostring() function
 local function arrayToStringSimple(arr, sep, prelude, ending)
+	sep = sep or ", "
+	prelude = prelude or "["
+	ending = ending or "]"
+
 	local str = prelude
 	for _, e in pairs(arr) do
 		str = str .. tostring(e) .. sep
@@ -108,6 +125,8 @@ local function betterPrint(args, maxLevel)
 			else
 				printTableRecurse(name .. " (table) : ", tab, level, maxLevel)
 			end
+		elseif type(tab) == "function" then
+			printArrayRecurse(name .. " (function) : ", getArgs(tab), level, maxLevel)
 		else
 			print(name .. " (" .. type(tab) .. ") : ", tab)
 		end

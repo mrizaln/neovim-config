@@ -5,7 +5,6 @@ require("tasks").setup({
 			cmd = "cmake",
 			build_dir = tostring(Path:new("{cwd}", "build", "{build_type}")),
 			build_type = "Debug",
-			--dap_name = 'lldb', -- DAP configuration name from `require('dap').configurations`. If there is no such configuration, a new one with this name as `type` will be created.
 			dap_name = "codelldb",
 			args = {
 				configure = { "-D", "CMAKE_EXPORT_COMPILE_COMMANDS=1", "-G", "Ninja" },
@@ -26,8 +25,10 @@ require("tasks").setup({
 
 -- keybindings
 local opts = { noremap = true, silent = false }
+vim.api.nvim_set_keymap("n", "<leader>ci", ":Task start auto get_deps<cr>", opts)
 vim.api.nvim_set_keymap("n", "<leader>cg", ":Task start auto configure<cr>", opts)
 vim.api.nvim_set_keymap("n", "<leader>cb", ":Task start auto build<cr>", opts)
+vim.api.nvim_set_keymap("n", "<leader>cB", ":Task start auto force_build<cr>", opts)
 vim.api.nvim_set_keymap("n", "<leader>cc", ":Task start auto clean<cr>", opts)
 vim.api.nvim_set_keymap("n", "<leader>cd", ":Task start auto debug<cr>", opts)
 vim.api.nvim_set_keymap("n", "<leader>cr", ":Task start auto run<cr>", opts)

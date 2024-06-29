@@ -17,11 +17,12 @@ require("packer").startup(function()
 	-- use({ "dracula/vim", as = "dracula-vim-theme" })
 	-- use({ "rose-pine/neovim", as = "rose-pine" })
 	use({ "katawful/kat.nvim", tag = "3.1" })
+	use("ellisonleao/gruvbox.nvim")
 	-----------------
 
 	-- quality of life --
 	---------------------
-	-- -- coppilot
+	-- coppilot
 	use({
 		"zbirenbaum/copilot.lua",
 		cmd = "Copilot",
@@ -119,6 +120,11 @@ require("packer").startup(function()
 	-- 	end,
 	-- })
 
+	-- rainbow parens
+	use({
+		"https://gitlab.com/HiPhish/rainbow-delimiters.nvim.git",
+	})
+
 	-- nvim-autopairs
 	use({
 		"windwp/nvim-autopairs",
@@ -151,6 +157,10 @@ require("packer").startup(function()
 		config = function()
 			require("config/plugin/todo-comments_nvim")
 		end,
+	})
+
+	use({
+		"dstein64/vim-startuptime",
 	})
 	---------------------
 
@@ -220,7 +230,8 @@ require("packer").startup(function()
 
 	-- neovim-tasks (cmake, cargo, or add a module yourself)
 	use({
-		"Shatur/neovim-tasks",
+		-- "Shatur/neovim-tasks",
+		"mrizaln/neovim-tasks", -- use my forks instead
 		requires = {
 			"mfussenegger/nvim-dap",
 			"nvim-lua/plenary.nvim",
@@ -351,13 +362,13 @@ require("packer").startup(function()
         requires = { 'ms-jpq/coq.artifacts' },
         -- config = function() require("config/plugin/coq_nvim") end
     } --]]
+
+	-- additional syntax highlight using vscode textmate plugin (slow though)
+	use({ "icedman/nvim-textmate" })
 	---------
 
 	-- other --
 	-----------
-	-- glsl
-	use("tikhomirov/vim-glsl")
-
 	use({
 		"iamcco/markdown-preview.nvim",
 		run = function()
@@ -369,12 +380,12 @@ require("packer").startup(function()
 	})
 
 	-- hex editor plugin
-	use({
-		"RaafatTurki/hex.nvim",
-		config = function()
-			require("hex").setup()
-		end,
-	})
+	-- use({
+	-- 	"RaafatTurki/hex.nvim",
+	-- 	config = function()
+	-- 		require("hex").setup()
+	-- 	end,
+	-- })
 
 	-- -- markdown previewer
 	-- use({

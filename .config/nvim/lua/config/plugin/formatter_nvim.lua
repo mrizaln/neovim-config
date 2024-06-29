@@ -52,7 +52,7 @@ local prettier = function()
 	local _prettier = require("formatter.filetypes.markdown").prettier()
 
 	-- use tab-width value the same as nvim's configured tabstop value
-	table.insert(_prettier.args, "--tab-width=" .. vim.opt.tabstop._value)
+	table.insert(_prettier.args, "--tab-width=" .. vim.opt.tabstop:get())
 	return _prettier
 end
 
@@ -72,10 +72,9 @@ end
 
 -- Provides the Format, FormatWrite, FormatLock, and FormatWriteLock commands
 require("formatter").setup({
-	-- Enable or disable logging
 	logging = true,
-	-- Set the log level
 	log_level = vim.log.levels.WARN,
+
 	-- All formatter configurations are opt-in
 	filetype = {
 		--[[
@@ -118,12 +117,13 @@ require("formatter").setup({
 		glsl = clangformat,
 		-- java = clangformat,
 
-		javascript = require("formatter.defaults.eslint_d"),
-		typescript = require("formatter.defaults.eslint_d"),
+		javascript = require("formatter.defaults").prettier,
+		typescript = require("formatter.defaults").prettier,
 		json = require("formatter.filetypes.json").prettier,
 
 		xml = require("formatter.filetypes.xml").tidy,
 		html = require("formatter.filetypes.html").prettier,
+		css = require("formatter.filetypes.css").prettier,
 
 		python = require("formatter.filetypes.python").black,
 
@@ -139,11 +139,9 @@ require("formatter").setup({
 
 		go = require("formatter.filetypes.go").gofmt,
 
-		-- Use the special "*" filetype for defining formatter configurations on
-		-- any filetype
+		-- Use the special "*" filetype for defining formatter configurations on any filetype
+		-- "formatter.filetypes.any" defines default configurations for any filetype
 		["*"] = {
-			-- "formatter.filetypes.any" defines default configurations for any
-			-- filetype
 			require("formatter.filetypes.any").remove_trailing_whitespace,
 		},
 	},
@@ -179,13 +177,12 @@ vim.cmd([[
 
         if &buftype != ""
             return "notfile"        " notfile is a special case for non-file buffers
-        elseif !has_key(g:formatter_auto_format_rules, l:filetype)
+        elseif !has_key(g:formatter_auto_format_rules, l:filetype) && !has_key(g:formatter_auto_format_enabled, l:filetype)
             return "other"
         else
             return l:filetype
         endif
     endfunction
-
 ]])
 
 -- auto format init
@@ -213,22 +210,22 @@ vim.cmd([[
 
 -- auto format status
 vim.cmd([[
-    function FormatterAutoCommandStatus(short)
+    function FormatterAutoCommandStatusDetailed()
+        echo "default   :" g:formatter_auto_format_rules
+        echo "current   :" g:formatter_auto_format_enabled
+        echo "overridden:" g:formatter_auto_format_overridden
+    endfunction
+
+    function FormatterAutoCommandStatusBrief()
         let l:filetype = FormatterAutoCommandGetFiletype()
 
-        if a:short
-            if l:filetype == "notfile"
-                echo "FormatterAutoCommandStatus (notfile): not a file"
-            elseif !has_key(g:formatter_auto_format_enabled, l:filetype)
-                echo "FormatterAutoCommandStatus (" . l:filetype . "): uninitialized"
-            else
-                let l:status = g:formatter_auto_format_enabled[l:filetype] ? "enabled" : "disabled"
-                echo "FormatterAutoCommandStatus (" . l:filetype . "): " . l:status
-            endif
+        if l:filetype == "notfile"
+            echo "FormatterAutoCommandStatus (notfile): not a file"
+        elseif !has_key(g:formatter_auto_format_enabled, l:filetype)
+            echo "FormatterAutoCommandStatus (" . l:filetype . "): uninitialized"
         else
-            echo "default   :" g:formatter_auto_format_rules
-            echo "current   :" g:formatter_auto_format_enabled
-            echo "overridden:" g:formatter_auto_format_overridden
+            let l:status = g:formatter_auto_format_enabled[l:filetype] ? "enabled" : "disabled"
+            echo "FormatterAutoCommandStatus (" . l:filetype . "): " . l:status
         endif
     endfunction
 ]])
@@ -239,7 +236,15 @@ vim.cmd([[
         let l:filetype = FormatterAutoCommandGetFiletype()
 
         if l:filetype == "notfile"
+            echo "FormatterAutoCommandFunction: not a file"
             return
+        endif
+
+        if l:filetype == "other"
+            let l:other_value = remove(g:formatter_auto_format_enabled, "other")
+            let l:filetype = &filetype
+            echo "New entry for '" . l:filetype . "'. Previously associated with 'other' which has value of '" . l:other_value ."'"
+            let g:formatter_auto_format_enabled[l:filetype] = other_value
         endif
 
         let g:formatter_auto_format_overridden[l:filetype] = v:true
@@ -264,10 +269,11 @@ vim.cmd([[
     endfunction
 
 
-    command -nargs=1 FormatWriteAutoCmdStatus call FormatterAutoCommandStatus(<args>)
-    command -nargs=0 FormatWriteAutoCmdToggle call FormatterAutoCommandFunction("") | FormatWriteAutoCmdStatus v:true
-    command -nargs=0 FormatWriteAutoCmdEnable call FormatterAutoCommandFunction(v:true) | FormatWriteAutoCmdStatus v:true
-    command -nargs=0 FormatWriteAutoCmdDisable call FormatterAutoCommandFunction(v:false) | FormatWriteAutoCmdStatus v:true
+    command -nargs=0 FormatWriteAutoCmdStatusBrief    call FormatterAutoCommandStatusBrief()
+    command -nargs=0 FormatWriteAutoCmdStatusDetailed call FormatterAutoCommandStatusDetailed()
+    command -nargs=0 FormatWriteAutoCmdToggle         call FormatterAutoCommandFunction("")      | FormatWriteAutoCmdStatusBrief
+    command -nargs=0 FormatWriteAutoCmdEnable         call FormatterAutoCommandFunction(v:true)  | FormatWriteAutoCmdStatusBrief
+    command -nargs=0 FormatWriteAutoCmdDisable        call FormatterAutoCommandFunction(v:false) | FormatWriteAutoCmdStatusBrief
 ]])
 
 -- format after save autocommand
@@ -288,7 +294,7 @@ vim.cmd([[
         endif
 
         if g:formatter_auto_format_enabled[l:filetype]
-           FormatWrite
+            FormatWrite
         endif
     endfunction
 ]])
@@ -300,5 +306,5 @@ vim.cmd([[
 vim.cmd([[nnoremap <silent> <leader>ff :Format<CR>]])
 vim.cmd([[nnoremap <silent> <leader>fw :FormatWrite<CR>]])
 vim.cmd([[nnoremap <silent> <leader>ft :FormatWriteAutoCmdToggle<CR>]])
-vim.cmd([[nnoremap <silent> <leader>fs :FormatWriteAutoCmdStatus v:true<CR>]])
-vim.cmd([[nnoremap <silent> <leader>fS :FormatWriteAutoCmdStatus v:false<CR>]])
+vim.cmd([[nnoremap <silent> <leader>fs :FormatWriteAutoCmdStatusBrief<CR>]])
+vim.cmd([[nnoremap <silent> <leader>fS :FormatWriteAutoCmdStatusDetailed<CR>]])

@@ -3,24 +3,15 @@
 
 -- [ delete hidden buffers ]
 -- source: https://stackoverflow.com/a/30101152
-vim.cmd([[
-    function! DeleteHiddenBuffers_func()
-        let tpbl=[]
-        let closed = 0
-        call map(range(1, tabpagenr('$')), 'extend(tpbl, tabpagebuflist(v:val))')
-        for buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
-            if getbufvar(buf, '&mod') == 0
-                silent execute 'bwipeout' buf
-                let closed += 1
-            endif
-        endfor
-        echo "Closed ".closed." hidden buffers"
-    endfunction
-]])
 
-vim.api.nvim_create_user_command("DeleteHiddenBuffers", function()
-	vim.cmd([[call DeleteHiddenBuffers_func()]])
-end, { bang = true })
+-- vim.api.nvim_create_user_command("DeleteHiddenBuffers", function(args)
+-- 	if args.bang then
+-- 		vim.cmd([[%bdelete!|edit #|normal`"]])
+-- 	else
+-- 		vim.cmd([[%bdelete|edit #|normal`"]])
+-- 	end
+-- end, { bang = true })
+vim.cmd([[command! -bang DeleteHiddenBuffers %bdelete<bang>|edit #|normal`"]])
 
 -- [ toggle background color to and from 'none' (original terminal color) ]
 local configured_background = {
@@ -48,6 +39,7 @@ end, {})
 -- [ toggle navigation motion for long lines as separate lines (on wrapped lines) ]
 local use_nav_long_lines = false -- by default, when wrapped, navigate long lines as separate lines
 vim.api.nvim_create_user_command("ToggleNavLongLines", function()
+	use_nav_long_lines = not use_nav_long_lines
 	if use_nav_long_lines then
 		vim.cmd([[
             nnoremap j gj
@@ -59,5 +51,18 @@ vim.api.nvim_create_user_command("ToggleNavLongLines", function()
             nnoremap k k
         ]])
 	end
-	use_nav_long_lines = not use_nav_long_lines
+end, {})
+
+-- [ toggle inlay hint ]
+vim.api.nvim_create_user_command("ToggleInlayHint", function()
+	local clients = vim.lsp.get_clients({ bufnr = 0 })
+	if #clients == 0 then
+		vim.notify("No LSP client found", vim.log.levels.WARN)
+		return
+	end
+	for _, client in ipairs(clients) do
+		if client.server_capabilities.inlayHintProvider then
+			vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = 0 }), { bufnr = 0 })
+		end
+	end
 end, {})

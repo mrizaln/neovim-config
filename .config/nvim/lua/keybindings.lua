@@ -32,6 +32,12 @@ nkeymap("<c-h>", "<c-w>h", options)
 nkeymap("<c-k>", "<c-w>k", options)
 nkeymap("<c-l>", "<c-w>l", options)
 
+-- resize panes
+nkeymap("<c-up>", ":resize -5<cr>", options)
+nkeymap("<c-down>", ":resize +5<cr>", options)
+nkeymap("<c-left>", ":vertical resize -5<cr>", options)
+nkeymap("<c-right>", ":vertical resize +5<cr>", options)
+
 -- move split panes
 nkeymap("<A-h>", "<c-w>H", options)
 nkeymap("<A-j>", "<c-w>J", options)
@@ -41,19 +47,18 @@ nkeymap("<A-l>", "<c-w>L", options)
 -- close quickfix
 nkeymap("<leader>cq", ":ccl<cr>", options)
 
--- reload config
-nkeymap(
-	"<leader>rr",
-	'<cmd>source ~/.config/nvim/init.lua <bar> lua print("config reloaded " .. os.date("(%d/%m/%Y %H:%M:%S)"))<cr>',
-	{}
-)
-
 -- center view
 ikeymap("<c-z>", "<esc>zza", options)
+
+-- yank text to system clipboard
+vkeymap("<leader>y", '"+y', options)
 
 -- ctrl+backspace and ctlr+delete
 -- vim.api.nvim_set_keymap("i", "<c-BS>", "<c-w>", options)    -- not working
 ikeymap("<c-Del>", "<cmd>norm! dw<cr>", options)
+
+-- remove highlight on pressing escape
+nkeymap("<esc>", "<cmd>nohlsearch<cr>", options)
 
 -- override the default * to search without jump
 -- see: https://stackoverflow.com/a/49944815

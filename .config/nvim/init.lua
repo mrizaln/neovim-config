@@ -72,6 +72,7 @@ else
 		require("plugins")
 		require("lsp_setup")
 		require("dap_setup")
+		require("buf_setup")
 		require("commands")
 		require("autocommands")
 	end

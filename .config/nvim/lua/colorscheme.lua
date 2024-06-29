@@ -1,12 +1,12 @@
 -- color scheme
 -----------------
--- if os.getenv("DISPLAY") == nil then
--- 	print("Color Scheme is disabled since no DISPLAY is found")
--- 	print("DISPLAY: nil")
--- 	vim.opt.termguicolors = false
--- 	vim.cmd([[ colorscheme ron ]])
--- 	return
--- end
+if os.getenv("DISPLAY") == nil then
+	print("Color Scheme is disabled since no DISPLAY is found")
+	print("DISPLAY: nil")
+	vim.opt.termguicolors = false
+	vim.cmd([[ colorscheme ron ]])
+	return
+end
 
 --vim.cmd [[colorscheme molokai]]
 --vim.cmd [[let g:molokai_original = 1]]
