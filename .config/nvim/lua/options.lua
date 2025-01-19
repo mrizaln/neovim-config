@@ -20,7 +20,7 @@ vim.opt.wrap = false
 
 vim.opt.list = true
 -- vim.opt.listchars = [[leadmultispace:   ▕,tab:  ▕,trail:.,extends:…,precedes:…,nbsp:�]]
-vim.opt.listchars = [[leadmultispace:▏   ,tab:▏  ,trail:.,extends:…,precedes:…,nbsp:�]]
+vim.opt.listchars = [[leadmultispace:▏   ,tab:├─,trail:─,extends:┈,precedes:┈,nbsp:�]]
 
 vim.opt.scrolloff = 10
 

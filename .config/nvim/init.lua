@@ -2,7 +2,7 @@
 
 -- load utils
 require("my_utils") -- must be first; some config use my_utils functionalities
--- _G.myUtils is available from this point
+-- _G.my_utils is available from this point
 
 -- determine host OS
 if vim.loop.os_uname().sysname ~= "Linux" then

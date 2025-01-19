@@ -39,14 +39,17 @@ require("packer").startup(function()
 	})
 
 	-- neodev (Neovim setup for init.lua)
+	-- TODO: archived, replace with lazydev.nvim
 	use({
 		"folke/neodev.nvim",
+		tag = "*",
 		-- config: "~/.config/nvim/lua/config/plugin/neodev_nvim"
 	})
 
 	-- alpha (start screen)
 	use({
 		"goolord/alpha-nvim",
+		commit = "bf3c8bb8c02ed3d9644cc5bbc48e2bdc39349cd7",
 		requires = { "nvim-tree/nvim-web-devicons" },
 		config = function()
 			require("config/plugin/alpha-nvim")
@@ -56,6 +59,7 @@ require("packer").startup(function()
 	-- floaterm (floating terminal)
 	use({
 		"voldikss/vim-floaterm",
+		commit = "4e28c8dd0271e10a5f55142fb6fe9b1599ee6160",
 		config = function()
 			require("config/plugin/vim-floaterm")
 		end,
@@ -64,6 +68,7 @@ require("packer").startup(function()
 	-- nvim-tree (directory treeview)
 	use({ -- nvim-tree requires nvim >= 0.8.0 --
 		"nvim-tree/nvim-tree.lua",
+		tag = "v1.7.1",
 		requires = { "nvim-tree/nvim-web-devicons" },
 		config = function()
 			require("config/plugin/nvim-tree")
@@ -79,8 +84,8 @@ require("packer").startup(function()
 	-- telescope (similar to fzf?)
 	use({
 		"nvim-telescope/telescope.nvim",
-		tag = "0.1.5",
-		requires = { "nvim-lua/plenary.nvim" },
+		tag = "0.1.8",
+		requires = { "nvim-lua/plenary.nvim", "folke/trouble.nvim" },
 		config = function()
 			require("config/plugin/telescope_nvim")
 		end,
@@ -89,6 +94,7 @@ require("packer").startup(function()
 	-- lualine.nvim (status line prettifier)
 	use({
 		"nvim-lualine/lualine.nvim",
+		commit = "b431d228b7bbcdaea818bdc3e25b8cdbe861f056",
 		requires = { "kyazdani42/nvim-web-devicons", opt = true },
 		config = function()
 			require("config/plugin/lualine_nvim")
@@ -98,36 +104,23 @@ require("packer").startup(function()
 	-- barbar (tabbed bar)      [ makes nvim v0.7.2 segfault idk why ]
 	use({
 		"romgrk/barbar.nvim",
+		tag = "v1.9.1",
 		wants = { "nvim-tree/nvim-web-devicons" },
 		config = function()
 			require("config/plugin/barbar_nvim")
 		end,
 	})
 
-	-- -- indent-blankline (indentation guide)
-	-- use({
-	-- 	"lukas-reineke/indent-blankline.nvim",
-	-- 	config = function()
-	-- 		require("config/plugin/indent-blankline_nvim")
-	-- 	end,
-	-- })
-
-	-- -- ts-rainbow (rainbow bracket colors)
-	-- use({
-	-- 	"p00f/nvim-ts-rainbow",
-	-- 	config = function()
-	-- 		require("config/plugin/nvim-ts-rainbow")
-	-- 	end,
-	-- })
-
-	-- rainbow parens
+	-- rainbow parens (ts-rainbow replacement)
 	use({
 		"https://gitlab.com/HiPhish/rainbow-delimiters.nvim.git",
+		tag = "v0.6.2",
 	})
 
 	-- nvim-autopairs
 	use({
 		"windwp/nvim-autopairs",
+		commit = "ee297f215e95a60b01fde33275cc3c820eddeebe",
 		config = function()
 			require("nvim-autopairs").setup({})
 		end,
@@ -135,7 +128,7 @@ require("packer").startup(function()
 
 	use({
 		"j-hui/fidget.nvim",
-		tag = "v1.2.0",
+		tag = "v1.4.5",
 		config = function()
 			require("fidget").setup({})
 		end,
@@ -153,6 +146,7 @@ require("packer").startup(function()
 
 	use({
 		"folke/todo-comments.nvim",
+		tag = "v1.4.0",
 		requires = { "nvim-lua/plenary.nvim" },
 		config = function()
 			require("config/plugin/todo-comments_nvim")
@@ -161,19 +155,33 @@ require("packer").startup(function()
 
 	use({
 		"dstein64/vim-startuptime",
+		tag = "v4.5.0",
+	})
+
+	-- create color code: color picker and highlighter (very useful in css)
+	use({
+		"uga-rosa/ccc.nvim",
+		tag = "v2.0.3",
+		config = function()
+			require("config/plugin/ccc_nvim")
+		end,
 	})
 	---------------------
 
 	-- IDE --
 	---------
 	-- mason (third-party package manager)
-	use("williamboman/mason.nvim")
+	use({
+		"williamboman/mason.nvim",
+		tag = "*",
+	})
 
 	-- lsp
 	use({
 		"williamboman/mason-lspconfig.nvim",
 		"neovim/nvim-lspconfig",
 		requires = { "williamboman/mason.nvim" },
+		tag = "*",
 		-- config needs to be loaded for every buffer(?)
 		-- config file: [~/.config/nvim/lua/lsp_setup.lua]
 	})
@@ -181,6 +189,7 @@ require("packer").startup(function()
 	-- dap
 	use({
 		"jay-babu/mason-nvim-dap.nvim",
+		tag = "*",
 		requires = {
 			"williamboman/mason.nvim",
 			"mfussenegger/nvim-dap",
@@ -192,6 +201,7 @@ require("packer").startup(function()
 	-- dap-ui
 	use({
 		"rcarriga/nvim-dap-ui",
+		tag = "v4.0.0",
 		requires = { "mfussenegger/nvim-dap" },
 	})
 
@@ -206,7 +216,7 @@ require("packer").startup(function()
 	-- formatter
 	use({
 		"mhartington/formatter.nvim",
-		-- don't lazy loading (actually lazy loading is enough)
+		commit = "b0edd69cec589bb65930cb15ab58b7e61d9a7e70",
 		config = function()
 			require("config/plugin/formatter_nvim")
 		end,
@@ -215,23 +225,27 @@ require("packer").startup(function()
 	-- trouble
 	use({
 		"folke/trouble.nvim",
+		tag = "*",
 		config = function()
 			require("config/plugin/trouble_nvim")
 		end,
 	})
 
 	-- Comment.nvim (commenter)
+	-- TODO: remove this plugin, this functionality has been added to neovim v0.10
 	use({
 		"numToStr/Comment.nvim",
+		commit = "e30b7f2008e52442154b66f7c519bfd2f1e32acb",
 		config = function()
 			require("config/plugin/Comment_nvim")
 		end,
 	})
 
 	-- neovim-tasks (cmake, cargo, or add a module yourself)
+	-- NOTE: my fork is better suited for C++ workflow (CMake + Conan)
 	use({
-		-- "Shatur/neovim-tasks",
-		"mrizaln/neovim-tasks", -- use my forks instead
+		-- "Shatur/neovim-tasks",   -- original repo
+		"mrizaln/neovim-tasks", -- use my fork instead
 		requires = {
 			"mfussenegger/nvim-dap",
 			"nvim-lua/plenary.nvim",
@@ -273,7 +287,7 @@ require("packer").startup(function()
 			vim.keymap.set({ "i", "s" }, "<C-L>", function()
 				ls.jump(1)
 			end, { silent = true })
-			vim.keymap.set({ "i", "s" }, "<C-J>", function()
+			vim.keymap.set({ "i", "s" }, "<C-H>", function()
 				ls.jump(-1)
 			end, { silent = true })
 		end,
@@ -282,6 +296,7 @@ require("packer").startup(function()
 	-- nvim-cmp (completion)
 	use({
 		"hrsh7th/nvim-cmp",
+		commit = "ae644feb7b67bf1ce4260c231d1d4300b19c6f30",
 		requires = {
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-buffer",
@@ -302,48 +317,33 @@ require("packer").startup(function()
 	-- lsp_signature (show function signature; better than [vim.lsp.buf.signature_help])
 	use({
 		"ray-x/lsp_signature.nvim",
+		commit = "fc38521ea4d9ec8dbd4c2819ba8126cea743943b",
 		-- no lazy loading
 		-- config: [./config/plugin/lsp_signature_nvim]
 	})
 
-	-- better hover (by rendering the markdown on the hover doc)
-	-- use({
-	-- 	"JASONews/glow-hover",
-	-- 	config = function()
-	-- 		require("glow-hover").setup({
-	-- 			max_width = 100,
-	-- 			padding = 5,
-	-- 			border = "shadow",
-	-- 			-- glow_path = "glow",
-	-- 			glow_path = "/home/mrizaln/Apps/src/glow/glow",
-	-- 		})
-	-- 	end,
-	-- })
-
 	-- better hover (for c++ at least)
 	use({
 		"Fildo7525/pretty_hover",
+		tag = "*",
 		config = function()
 			require("pretty_hover").setup({})
 		end,
 	})
 
-	-- symbols-outline
+	-- code outline
 	use({
-		"simrat39/symbols-outline.nvim",
+		"stevearc/aerial.nvim",
+		tag = "v2.4.0",
 		config = function()
-			require("config/plugin/symbols-outline_nvim")
+			require("config/plugin/aerial_nvim")
 		end,
 	})
-
-	-- vim-fugitive (git integration)
-	-- use({
-	-- 	"tpope/vim-fugitive",
-	-- })
 
 	-- gitsigns.nvim
 	use({
 		"lewis6991/gitsigns.nvim",
+		tag = "*",
 		config = function()
 			require("config/plugin/gitsigns_nvim")
 		end,
@@ -352,6 +352,7 @@ require("packer").startup(function()
 	-- git diff tool (diffview.nvim)
 	use({
 		"sindrets/diffview.nvim",
+		commit = "4516612fe98ff56ae0415a259ff6361a89419b0a",
 		requires = "nvim-lua/plenary.nvim",
 	})
 
@@ -363,20 +364,49 @@ require("packer").startup(function()
         -- config = function() require("config/plugin/coq_nvim") end
     } --]]
 
+	-- neogen (annotation, documentation)
+	use({
+		"danymat/neogen",
+		tag = "*",
+		config = function()
+			require("neogen").setup({ snippet_engine = "luasnip" })
+		end,
+	})
+
 	-- additional syntax highlight using vscode textmate plugin (slow though)
-	use({ "icedman/nvim-textmate" })
+	use({
+		"icedman/nvim-textmate",
+		commit = "e2bb80a58a41234e5e81a28250bc583422c02157",
+	})
 	---------
 
 	-- other --
 	-----------
+	-- discord rich presence
+	-- use({
+	-- 	"vyfor/cord.nvim",
+	-- 	commit = "a26b00d58c42174aadf975917b49cec67650545f",
+	-- 	run = "./build || .\\build",
+	-- 	config = function()
+	-- 		require("config/plugin/cord_nvim")
+	-- 	end,
+	-- })
+
+	-- markdown preview
 	use({
 		"iamcco/markdown-preview.nvim",
+		commit = "a923f5fc5ba36a3b17e289dc35dc17f66d0548ee",
 		run = function()
 			vim.fn["mkdp#util#install"]()
 		end,
 		config = function()
 			require("config/plugin/markdown-preview_nvim")
 		end,
+	})
+
+	-- csv file helper
+	use({
+		"mechatroner/rainbow_csv",
 	})
 
 	-- hex editor plugin

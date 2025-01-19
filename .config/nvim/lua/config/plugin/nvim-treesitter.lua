@@ -38,13 +38,14 @@ configs.setup({
 ----------------
 
 --------------------------------[ other ]--------------------------------
--- not highlight currently
 local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+
+-- no highlight currently
 parser_config["cpp2"] = {
 	install_info = {
 		-- url = "https://github.com/APokorny/tree-sitter-cpp2",
-		-- url = "https://github.com/uyha/tree-sitter-cpp2", -- alternative
-		url = "/home/mrizaln/Projects/cppfront/tree-sitter-cpp2",
+		url = "https://github.com/uyha/tree-sitter-cpp2", -- alternative
+		-- url = "/home/mrizaln/Projects/Cppfront/tree-sitter-cpp2",
 		files = { "src/parser.c" }, -- note that some parsers also require src/scanner.c or src/scanner.cc
 		-- -- optional entries:
 		branch = "main", -- default branch in case of git repo if different from master
@@ -52,6 +53,15 @@ parser_config["cpp2"] = {
 		-- requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
 	},
 	filetype = "cpp2", -- if filetype does not match the parser name
+}
+
+parser_config["lox"] = {
+	install_info = {
+		url = "https://github.com/ajeetdsouza/tree-sitter-lox",
+		files = { "src/parser.c" },
+		branch = "main",
+	},
+	filetype = "lox",
 }
 
 -- use cpp parser for cpp2

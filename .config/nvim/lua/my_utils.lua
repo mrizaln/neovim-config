@@ -4,16 +4,16 @@
 -- nvim
 
 -- create new field
-_G.myUtils = {}
+_G.my_utils = {}
 
 local utils = {
 	general = require("utils/general"),
-    -- random = require("utils/random"),
+	-- random = require("utils/random"),
 	dap = require("utils/dap-util"),
 }
 
 for _, v in pairs(utils) do
 	for kk, vv in pairs(v) do
-		_G.myUtils[kk] = vv
+		_G.my_utils[kk] = vv
 	end
 end

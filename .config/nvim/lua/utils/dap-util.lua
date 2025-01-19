@@ -3,7 +3,7 @@
 local M = {}
 
 -- to use general utils, make sure it is loaded first
---local general = _G.myUtils.general
+--local general = _G.my_utils.general
 local common = require("utils/general")
 
 -- create new DAP configuration

@@ -6,7 +6,7 @@ local util = require("formatter.util")
 local clangformat = function()
 	local style_file = nil
 
-	local fileExist = _G.myUtils.fileExist
+	local fileExist = _G.my_utils.fileExist
 
 	local workspaces = vim.lsp.buf.list_workspace_folders()
 	if #workspaces >= 1 then
@@ -57,7 +57,7 @@ local prettier = function()
 end
 
 -- local rustfmt = function()
--- 	local fileExist = _G.myUtils.fileExist
+-- 	local fileExist = _G.my_utils.fileExist
 -- 	local style_file = os.getenv("HOME") .. "/.config/rustfmt/"
 -- 	if not fileExist(style_file) then
 -- 		return require("formatter.filetypes.rust").rustfmt
@@ -111,11 +111,18 @@ require("formatter").setup({
 
 		lua = require("formatter.filetypes.lua").stylua,
 
-		cmake = require("formatter.filetypes.cmake").cmakeformat,
+		cmake = function()
+			return {
+				exe = "gersemi",
+				args = { "-i" }, -- in-place
+				stdin = false,
+			}
+		end,
+
 		c = clangformat,
 		cpp = clangformat,
 		glsl = clangformat,
-		-- java = clangformat,
+		java = clangformat,
 
 		javascript = require("formatter.defaults").prettier,
 		typescript = require("formatter.defaults").prettier,
@@ -125,7 +132,7 @@ require("formatter").setup({
 		html = require("formatter.filetypes.html").prettier,
 		css = require("formatter.filetypes.css").prettier,
 
-		python = require("formatter.filetypes.python").black,
+		python = require("formatter.filetypes.python").ruff,
 
 		rust = function()
 			local rustfmt = require("formatter.filetypes.rust").rustfmt()
@@ -161,7 +168,7 @@ vim.cmd([[
         \'lua'      : v:true,
         \'markdown' : v:true,
         \'python'   : v:false,
-        \'rust'     : v:true,
+        \'rust'     : v:false,
         \'other'    : v:false,
     \}
 ]])
@@ -286,6 +293,10 @@ vim.cmd([[
 
     function MyFormatWrite()
         let l:filetype = FormatterAutoCommandGetFiletype()
+
+        if l:filetype == "notfile"
+            return
+        endif
 
         " if for some reason the init function was not called for the current buffer, call it now
         if !has_key(g:formatter_auto_format_enabled, l:filetype)
