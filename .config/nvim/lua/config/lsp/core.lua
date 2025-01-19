@@ -21,11 +21,11 @@ require("mason").setup({
 require("mason-lspconfig").setup({
 	ensure_installed = {
 		"lua_ls", -- lua
-		-- "clangd@16.0.2", -- C, C++ (version 17.0.3 has a bug: random crash with sigsev signal)
+		-- "clangd@18.1.3", -- C, C++ (version 19.1.4 has a bug: random crash with sigsev signal)
 		-- "jedi_language_server", -- python
-		-- "pyright",       -- slowwww
-		"rust_analyzer", -- rust
-		"tsserver", -- typescript, javascript
+		-- "pyright",       -- fuckin slowwwwwwwwwwwwwwwwwwwwwww
+		-- "rust_analyzer", -- rust
+		-- "ts_ls", -- typescript, javascript
 		"bashls", -- bash
 		-- "cmake", -- cmake
 	},
@@ -63,6 +63,35 @@ local function configure_clangd()
 	})
 end
 
+local function configure_rust_analyzer()
+	require("lspconfig")["rust_analyzer"].setup({
+		capabilities = capabilites,
+		-- on_attach = function(client) require('completion').on_attach(client) end,
+		settings = {
+			["rust-analyzer"] = {
+				imports = {
+					granularity = {
+						group = "module",
+					},
+					prefix = "self",
+				},
+				cargo = {
+					buildScripts = {
+						enable = true,
+					},
+				},
+				procMacro = {
+					enable = true,
+				},
+				check = {
+					-- enable clippy
+					command = "clippy",
+				},
+			},
+		},
+	})
+end
+
 -- for LSPs installed using Mason
 require("mason-lspconfig").setup_handlers({
 	--------------------[ default handler ]--------------------
@@ -86,6 +115,11 @@ require("mason-lspconfig").setup_handlers({
 	-- clangd
 	["clangd"] = function()
 		configure_clangd()
+	end,
+
+	-- rust
+	["rust_analyzer"] = function()
+		configure_rust_analyzer()
 	end,
 
 	-- lua
@@ -112,37 +146,11 @@ require("mason-lspconfig").setup_handlers({
 		})
 	end,
 
-	-- rust
-	["rust_analyzer"] = function()
-		require("lspconfig")["rust_analyzer"].setup({
-			capabilities = capabilites,
-			-- on_attach = function(client) require('completion').on_attach(client) end,
-			settings = {
-				["rust-analyzer"] = {
-					imports = {
-						granularity = {
-							group = "module",
-						},
-						prefix = "self",
-					},
-					cargo = {
-						buildScripts = {
-							enable = true,
-						},
-					},
-					procMacro = {
-						enable = true,
-					},
-				},
-			},
-		})
-	end,
-
-	["pyright"] = function()
-		require("lspconfig")["pyright"].setup({
-			capabilites = capabilites,
-		})
-	end,
+	-- ["pyright"] = function()
+	-- 	require("lspconfig")["pyright"].setup({
+	-- 		capabilites = capabilites,
+	-- 	})
+	-- end,
 
 	["gopls"] = function()
 		require("lspconfig")["gopls"].setup({
@@ -170,7 +178,8 @@ require("mason-lspconfig").setup_handlers({
 })
 
 -- for LSPs not installed using Mason
-configure_clangd()
+-- configure_clangd()
+configure_rust_analyzer()
 
 -- require("lspconfig.configs")["pyls"] = {
 -- 	default_config = {
