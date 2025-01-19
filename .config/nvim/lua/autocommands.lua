@@ -15,7 +15,7 @@ vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 		local current_bufnr = vim.api.nvim_get_current_buf()
 
 		-- for some reason, this function returns all active clients regardless of the buffer being provided as argument
-		local active_clients = vim.lsp.get_active_clients({ buffer = current_bufnr })
+		local active_clients = vim.lsp.get_clients({ buffer = current_bufnr })
 
 		for _, client in pairs(active_clients) do
 			if client.server_capabilities.documentHighlightProvider then
@@ -28,7 +28,12 @@ vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 		end
 
 		-- no lsp support; match current word instead
-		vim.cmd([[call matchadd('LspReferenceText', '\<' . escape(expand('<cword>'), '%#<*:\.') . '\>', -1)]])
+		vim.cmd([[
+            let s = matchstr(getline('.'), '\%' . col('.') . 'c.')
+            if s != '*'     "ignore special character
+                call matchadd('LspReferenceText', '\<' . expand('<cword>') . '\>', -1)
+            endif
+        ]])
 	end,
 	pattern = "*",
 	group = "LspDocumentHighlight",
@@ -108,9 +113,9 @@ vim.cmd([[
     augroup AutoSaves
         autocmd!
         " auto saves only for rust files (to trigger rust_analyzer)"
-        autocmd FileType rust autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | silent write | endif
+        autocmd FileType rust,cpp autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | silent write | endif
         " auto saves and format but run the formatter first"
-        autocmd FileType markdown,cpp,glsl autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | call RunNotUndoElse('MyFormatWrite', ':write') | endif
+        autocmd FileType markdown,glsl autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | call RunNotUndoElse('MyFormatWrite', ':write') | endif
     augroup END
 
     " conanfile.txt
