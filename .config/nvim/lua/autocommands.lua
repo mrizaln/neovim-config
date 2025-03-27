@@ -83,44 +83,60 @@ vim.cmd([[
 --------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
+------------------[ autosave file and do something after it]--------------------
+--------------------------------------------------------------------------------
+-- vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
+-- 	callback = function()
+--         if
+--     end,
+-- 	pattern = { "*.rs", "*.cpp" },
+-- 	nested = true,
+-- })
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
 --------------------------[ filetype specific commands ]------------------------
 --------------------------------------------------------------------------------
-vim.cmd([[
-    " filter undoes from TextChanged event "
-    function RunNotUndoElse(run, else_run)
-        let undotree = undotree()
-        if undotree.seq_cur is# undotree.seq_last
-            " no undoes
-            execute "call " . a:run . "()"
-            return
-        endif
+local function just_save_autocmd()
+	vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
+		command = "silent write",
+		nested = true,
+		buffer = 0,
+	})
+end
 
-        " undo
-        if !empty(a:else_run)
-            execute a:else_run
-        endif
-    endfunction
+local function reset_scrolloff()
+	vim.opt_local.scrolloff = 0
+end
 
-    " auto saves
+local function register_filetype_autocmd(action_map)
+	for ft, callback in pairs(action_map) do
+		vim.api.nvim_create_autocmd({ "FileType" }, {
+			desc = "Register filetype specific autocmd",
+			pattern = ft,
+			callback = callback,
+		})
+	end
+end
 
-    " turn on spell check on markdown files (for English and Indonesian)
-    autocmd FileType markdown setlocal spelllang=en_us,id spell tabstop=2 softtabstop=2 shiftwidth=2 expandtab
+register_filetype_autocmd({
+	cpp = just_save_autocmd,
+	rust = just_save_autocmd,
+	glsl = just_save_autocmd,
+	floaterm = reset_scrolloff,
+	Trouble = reset_scrolloff,
+	NvimTree = reset_scrolloff,
+	markdown = function()
+		vim.opt_local.spell = true
+		vim.opt_local.spelllang = "en_us,id"
+		vim.opt_local.tabstop = 2
+		vim.opt_local.softtabstop = 2
+		vim.opt_local.shiftwidth = 2
+		vim.opt_local.expandtab = true
+	end,
+})
 
-    " set scrolloff to 0 for floaterm
-    autocmd FileType floaterm,Trouble,NvimTree setlocal scrolloff=0
-
-    " autosaves on selected filetypes on file change
-    augroup AutoSaves
-        autocmd!
-        " auto saves only for rust files (to trigger rust_analyzer)"
-        autocmd FileType rust,cpp autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | silent write | endif
-        " auto saves and format but run the formatter first"
-        autocmd FileType markdown,glsl autocmd TextChanged,InsertLeave <buffer> if &readonly == 0 | call RunNotUndoElse('MyFormatWrite', ':write') | endif
-    augroup END
-
-    " conanfile.txt
-    autocmd BufNewFile,BufRead conanfile.txt setlocal filetype=ini
-]])
 --------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------

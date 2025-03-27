@@ -52,32 +52,42 @@ if ok and stats and stats.size > max_filesize then
         set noundofile
         set noswapfile
         set noloadplugins
-        " set nowrap
+        set nowrap
     ]])
 	require("keybindings") -- global keybinds
 	require("colorscheme")
 else
+	local minimal = vim.g.startup_minimal_mode
+	local man_view = vim.g.startup_man_view
+	local is_diff = vim.opt.diff:get() -- check whether nvim run in diff mode
+
+	local load_packer = function()
+		require("plugins")
+		local has_compiled, _ = pcall(require, "config/packer_compiled")
+		if not has_compiled then
+			vim.cmd([[PackerCompile]])
+			require("config/packer_compiled")
+		end
+	end
+
 	require("options")
 	require("keybindings") -- global keybinds
 	require("colorscheme")
 
-	local minimal = vim.api.nvim_eval([[get(g:, 'init_minimal', v:false)]]) -- set this at startup using `nvim --cmd "let g:init_minimal = <bool>"`
-	if minimal then
-		print("Opening in minimal mode")
-		require("lsp_setup") -- load at least lsp
-	end
-	local is_diff = vim.opt.diff:get() -- check whether nvim run in diff mode
-
-	if not is_diff and not minimal then
-		require("plugins")
+	if is_diff then
+		require("commands")
+	elseif minimal then
+		require("lsp_setup")
+		require("commands")
+		require("autocommands")
+	elseif man_view then
+		require("commands")
+	else
+		load_packer()
 		require("lsp_setup")
 		require("dap_setup")
 		require("buf_setup")
 		require("commands")
 		require("autocommands")
 	end
-
-	-- vim.api.nvim_set_keymap("i", "<a-space>", ':lua print("hello")', { silent = false })
-
-	--vim.cmd [[:COQnow -s]]
 end

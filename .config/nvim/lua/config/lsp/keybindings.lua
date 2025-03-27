@@ -47,7 +47,8 @@ keymap("n", "gw", telescope_open("lsp_workspace_symbols"), { desc = "List symbol
 
 -- keymap("n", "K", vim.lsp.buf.hover, { desc = "Hover" })
 keymap("n", "K", function()
-	if vim.bo.filetype == "help" then
+	local filetypes = { "help", "man", "markdown" }
+	if vim.tbl_contains(filetypes, vim.bo.filetype) then
 		vim.api.nvim_feedkeys("K", "ni", true)
 	else
 		vim.lsp.buf.hover()

@@ -1,5 +1,3 @@
--- default config = require('symbols-outline.config.defaults')
-
 require("aerial").setup({
 	on_attach = function(bufnr)
 		-- jump forwards/backwards with '{' and '}'

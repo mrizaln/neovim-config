@@ -1,12 +1,12 @@
 -- check if a table is used as an array
-local function isArray(tab)
+local function is_array(tab)
 	return #tab > 0 and next(tab, #tab) == nil
 end
 
-local printArrayRecurse, printTableRecurse
+local print_array_recurse, print_table_recurse
 
 -- get arguments of a function
-local function getArgs(func)
+local function get_args(func)
 	local args = {}
 	for i = 1, debug.getinfo(func).nparams, 1 do
 		table.insert(args, debug.getlocal(func, i))
@@ -15,11 +15,11 @@ local function getArgs(func)
 end
 
 -- print array recursively
-printArrayRecurse = function(prelude, arr, level, maxLevel)
+print_array_recurse = function(prelude, arr, level, max_level)
 	level = level or 0
-	maxLevel = maxLevel or -1
+	max_level = max_level or -1
 
-	if level == maxLevel then
+	if level == max_level then
 		return
 	end
 
@@ -29,13 +29,13 @@ printArrayRecurse = function(prelude, arr, level, maxLevel)
 	if arr ~= nil then
 		for n, e in pairs(arr) do
 			if type(e) == "table" then
-				if isArray(e) then
-					printArrayRecurse(indent, e, level + 1, maxLevel)
+				if is_array(e) then
+					print_array_recurse(indent, e, level + 1, max_level)
 				else
-					printTableRecurse(indent, e, level + 1, maxLevel)
+					print_table_recurse(indent, e, level + 1, max_level)
 				end
 			elseif type(e) == "function" then
-				printArrayRecurse(indent .. n .. " (fn) : ", getArgs(e), level + 1, maxLevel)
+				print_array_recurse(indent .. n .. " (fn) : ", get_args(e), level + 1, max_level)
 			else
 				print(indent .. " (" .. type(e) .. ") " .. tostring(e) .. ",")
 			end
@@ -50,11 +50,11 @@ printArrayRecurse = function(prelude, arr, level, maxLevel)
 end
 
 -- print table recursively
-printTableRecurse = function(prelude, tab, level, maxLevel)
+print_table_recurse = function(prelude, tab, level, max_level)
 	level = level or 0
-	maxLevel = maxLevel or -1
+	max_level = max_level or -1
 
-	if level == maxLevel then
+	if level == max_level then
 		return
 	end
 
@@ -64,13 +64,13 @@ printTableRecurse = function(prelude, tab, level, maxLevel)
 	if tab ~= nil then
 		for k, e in pairs(tab) do
 			if type(e) == "table" then
-				if isArray(e) then
-					printArrayRecurse(indent .. k .. " : ", e, level + 1, maxLevel)
+				if is_array(e) then
+					print_array_recurse(indent .. k .. " : ", e, level + 1, max_level)
 				else
-					printTableRecurse(indent .. k .. " : ", e, level + 1, maxLevel)
+					print_table_recurse(indent .. k .. " : ", e, level + 1, max_level)
 				end
 			elseif type(e) == "function" then
-				printArrayRecurse(indent .. k .. " (fn) : ", getArgs(e), level + 1, maxLevel)
+				print_array_recurse(indent .. k .. " (fn) : ", get_args(e), level + 1, max_level)
 			else
 				print(indent .. k .. " : (" .. type(e) .. ") " .. tostring(e) .. ",")
 			end
@@ -85,7 +85,7 @@ printTableRecurse = function(prelude, tab, level, maxLevel)
 end
 
 -- return a string, every element will be converted using built-in tostring() function
-local function arrayToStringSimple(arr, sep, prelude, ending)
+local function array_to_string_simple(arr, sep, prelude, ending)
 	sep = sep or ", "
 	prelude = prelude or "["
 	ending = ending or "]"
@@ -98,16 +98,16 @@ local function arrayToStringSimple(arr, sep, prelude, ending)
 end
 
 -- print array, element by element (converted using built-in tostring() function)
-local function printArray(arr, sep, prelude, ending)
-	print(arrayToStringSimple(arr, sep, prelude, ending))
+local function print_array(arr, sep, prelude, ending)
+	print(array_to_string_simple(arr, sep, prelude, ending))
 end
 
 -- if you don't know what kind of type you want to print, use this function
 -- this function will print recursively if the type is a table
 -- you should pass the argument as a new table if you want to print multiple things
--- like this : betterPrint({arg1, arg2}) or betterPrint({name1=arg1, name2=arg2})
-local function betterPrint(args, maxLevel)
-	maxLevel = maxLevel or -1
+-- like this : better_print({arg1, arg2}) or better_print({name1=arg1, name2=arg2})
+local function better_print(args, max_level)
+	max_level = max_level or -1
 
 	args = args or {}
 	if type(args) ~= "table" then
@@ -120,20 +120,20 @@ local function betterPrint(args, maxLevel)
 	local idk = args
 	for name, tab in pairs(idk) do
 		if type(tab) == "table" then
-			if isArray(tab) then
-				printArrayRecurse(name .. " (array) : ", tab, level, maxLevel)
+			if is_array(tab) then
+				print_array_recurse(name .. " (array) : ", tab, level, max_level)
 			else
-				printTableRecurse(name .. " (table) : ", tab, level, maxLevel)
+				print_table_recurse(name .. " (table) : ", tab, level, max_level)
 			end
 		elseif type(tab) == "function" then
-			printArrayRecurse(name .. " (function) : ", getArgs(tab), level, maxLevel)
+			print_array_recurse(name .. " (function) : ", get_args(tab), level, max_level)
 		else
 			print(name .. " (" .. type(tab) .. ") : ", tab)
 		end
 	end
 end
 
-local function fileExist(file)
+local function file_exist(file)
 	-- check file exist
 	local file_handler = io.open(file, "r")
 	if file_handler == nil then
@@ -144,7 +144,7 @@ local function fileExist(file)
 	end
 end
 
-local function splitString(inputstr, sep)
+local function split_string(inputstr, sep)
 	if sep == nil then
 		sep = "%s"
 	end
@@ -162,7 +162,7 @@ local function get_nvim_version()
 	return nvim_ver_str
 end
 
-local function isInTable(value, array)
+local function is_in_table(value, array)
 	for _, v in ipairs(array) do
 		if v == value then
 			return true
@@ -227,12 +227,12 @@ local function find_git_dir(dir_path)
 end
 
 return {
-	print = betterPrint,
-	fileExist = fileExist,
-	splitString = splitString,
+	print = better_print,
+	file_exist = file_exist,
+	split_string = split_string,
 	get_nvim_version = get_nvim_version,
-	arrayToStringSimple = arrayToStringSimple,
-	printArray = printArray,
-	isInTable = isInTable,
-	findGitDir = find_git_dir,
+	array_to_string_simple = array_to_string_simple,
+	print_array = print_array,
+	is_in_table = is_in_table,
+	find_git_dir = find_git_dir,
 }

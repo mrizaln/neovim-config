@@ -1,7 +1,7 @@
 local builtin = require("telescope.builtin")
 
 vim.keymap.set("n", "<leader>sF", builtin.find_files)
-if _G.my_utils.findGitDir() then
+if _G.my_utils.find_git_dir() then
 	vim.keymap.set("n", "<leader>sf", builtin.git_files)
 else
 	vim.keymap.set("n", "<leader>sf", function()

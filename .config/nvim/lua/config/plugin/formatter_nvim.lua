@@ -6,22 +6,22 @@ local util = require("formatter.util")
 local clangformat = function()
 	local style_file = nil
 
-	local fileExist = _G.my_utils.fileExist
+	local file_exist = _G.my_utils.file_exist
 
 	local workspaces = vim.lsp.buf.list_workspace_folders()
 	if #workspaces >= 1 then
-		if fileExist(workspaces[1] .. "/_clang-format") then
+		if file_exist(workspaces[1] .. "/_clang-format") then
 			style_file = workspaces[1] .. "/_clang-format"
-		elseif fileExist(workspaces[1] .. "/.clang-format") then
+		elseif file_exist(workspaces[1] .. "/.clang-format") then
 			style_file = workspaces[1] .. "/.clang-format"
 		end
 	end
 
 	-- single file mode usually returns 0 #workspaces
 	if style_file == nil then
-		if fileExist(os.getenv("HOME") .. "/.config/nvim/_clang-format") then
+		if file_exist(os.getenv("HOME") .. "/.config/nvim/_clang-format") then
 			style_file = os.getenv("HOME") .. "/.config/nvim/_clang-format"
-		elseif fileExist(os.getenv("HOME") .. "/.config/nvim/.clang-format") then
+		elseif file_exist(os.getenv("HOME") .. "/.config/nvim/.clang-format") then
 			style_file = os.getenv("HOME") .. "/.config/nvim/.clang-format"
 		end
 	end
@@ -57,9 +57,9 @@ local prettier = function()
 end
 
 -- local rustfmt = function()
--- 	local fileExist = _G.my_utils.fileExist
+-- 	local file_exist = _G.my_utils.file_exist
 -- 	local style_file = os.getenv("HOME") .. "/.config/rustfmt/"
--- 	if not fileExist(style_file) then
+-- 	if not file_exist(style_file) then
 -- 		return require("formatter.filetypes.rust").rustfmt
 -- 	else
 -- 		return {
@@ -287,11 +287,17 @@ vim.cmd([[
 vim.cmd([[
     augroup FormatAutogroup
         autocmd!
-        autocmd BufNewFile,BufRead * call FormatterAutoCommandInit()
-        autocmd BufWritePost * call MyFormatWrite()
+        autocmd FileType * call FormatterAutoCommandInit()
+        autocmd BufWritePre * call MyFormatWrite()
     augroup END
 
     function MyFormatWrite()
+        " if undotree is undone, do nothing
+        let l:undotree = undotree()
+        if ! (l:undotree.seq_cur is# l:undotree.seq_last)
+            return
+        endif
+
         let l:filetype = FormatterAutoCommandGetFiletype()
 
         if l:filetype == "notfile"
@@ -305,7 +311,7 @@ vim.cmd([[
         endif
 
         if g:formatter_auto_format_enabled[l:filetype]
-            FormatWrite
+            Format
         endif
     endfunction
 ]])

@@ -84,8 +84,7 @@ local function configure_rust_analyzer()
 					enable = true,
 				},
 				check = {
-					-- enable clippy
-					command = "clippy",
+					command = "clippy", -- enable clippy
 				},
 			},
 		},
@@ -202,3 +201,7 @@ configure_rust_analyzer()
 -- 	capabilites = capabilites,
 -- 	autostart = false,
 -- })
+
+-- require("lspconfig.configs")["mlang"] = {
+-- 	default_config = {},
+-- }
