@@ -1,3 +1,7 @@
+-- Options are automatically loaded before lazy.nvim startup
+-- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
+-- Add any additional options here
+
 --[[ three types of configuration options
 --	global options (vim.o)			it seem vim.opt is recommended
 --	local to window (vim.wo)
@@ -20,7 +24,7 @@ vim.opt.wrap = false
 
 vim.opt.list = true
 -- vim.opt.listchars = [[leadmultispace:   ▕,tab:  ▕,trail:.,extends:…,precedes:…,nbsp:�]]
-vim.opt.listchars = [[leadmultispace:▏   ,tab:├─,trail:─,extends:┈,precedes:┈,nbsp:�]]
+-- vim.opt.listchars = [[leadmultispace:▏   ,tab:├─,trail:─,extends:┈,precedes:┈,nbsp:�]]
 
 vim.opt.scrolloff = 10
 
@@ -64,3 +68,7 @@ vim.opt.foldmethod = "manual"
 
 -- generate compile_commands.json everytine cmake called
 vim.cmd([[let g:cmake_link_compile_commands = 1]])
+
+-- lazyvim
+-- -------
+vim.g.snacks_animate = false

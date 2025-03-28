@@ -1,8 +1,0 @@
-call plug#begin('~/.config/nvim/plugged')
-"Plug 'cdelledonne/vim-cmake', { 'branch': '78-do-not-escape-paths' }
-Plug 'cdelledonne/vim-cmake', { 'branch': 'master' }
-call plug#end()
-
-let g:cmake_link_compile_commands=1
-nmap <leader>cg :CMakeGenerate<cr>
-nmap <leader>cb :CMakeBuild<cr>
