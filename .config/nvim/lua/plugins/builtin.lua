@@ -22,12 +22,11 @@ return {
 
   {
     "neovim/nvim-lspconfig",
-    opts = {
-      inlay_hints = { enabled = false },
-      servers = {
+    opts = function(_, opts)
+      opts.inlay_hints = { enabled = false }
+      opts.servers = {
         clangd = {
           mason = false,
-          semanticTokens = false,
           cmd = {
             "clangd",
             -- by default, clang-tidy use -checks=clang-diagnostic-*,clang-analyzer-*
@@ -51,7 +50,6 @@ return {
 
         rust_analyzer = {
           mason = false,
-          semanticTokens = false,
           settings = {
             ["rust-analyzer"] = {
               imports = {
@@ -74,15 +72,73 @@ return {
             },
           },
         },
-      },
-    },
+      }
+
+      local filetype_specific_keybinds = {
+        [1] = {
+          { "c", "h", "cpp", "hpp", "js", "ts" },
+          "v",
+          "fd",
+          "<Esc>o// clang-format on<Esc>gvO<Esc>O// clang-format off<Esc>gvO",
+          { noremap = true },
+        },
+        [2] = {
+          { "cpp" },
+          "v",
+          "\\c",
+          "xistatic_cast<>()<esc>PF<a",
+          { noremap = true, silent = true },
+        },
+        [3] = {
+          { "c", "cpp" },
+          "v",
+          "\\C",
+          "xi()<esc>p`[<left>i",
+          { noremap = true, silent = true },
+        },
+        [4] = {
+          { "cpp" },
+          "v",
+          "\\m",
+          "xistd::move()<esc>Pw",
+          { noremap = true, silent = true },
+        },
+        [5] = {
+          { "cpp" },
+          "v",
+          "\\f",
+          "xistd::forward<>()<esc>P`[2<left>i",
+          { noremap = true, silent = true },
+        },
+      }
+
+      vim.api.nvim_create_autocmd({ "FileType" }, {
+        callback = function()
+          local ft = vim.api.nvim_get_option_value("filetype", { scope = "local" })
+          for _, keybind in ipairs(filetype_specific_keybinds) do
+            if vim.tbl_contains(keybind[1], ft) then
+              vim.keymap.set(keybind[2], keybind[3], keybind[4], keybind[5])
+            end
+          end
+        end,
+        pattern = "*",
+        desc = "filetype keybinds",
+      })
+
+      return opts
+    end,
   },
 
   {
     "nvim-treesitter/nvim-treesitter",
     opts = {
-      highlight = { enable = true },
-      indent = { enable = true },
+      highlight = {
+        enable = true,
+      },
+      indent = {
+        enable = true,
+        disable = { "c", "cpp" },
+      },
       ensure_installed = {
         "bash",
         "c",
@@ -152,28 +208,22 @@ return {
   {
     "saghen/blink.cmp",
     opts = {
-      cmdline = {
-        enabled = true,
+      completion = {
+        ghost_text = {
+          enabled = false,
+        },
       },
-
       keymap = {
         preset = "none",
 
-        ["<Tab>"] = {
-          function(cmp)
-            if cmp.is_menu_visible() then
-              return cmp.select_next()
-            end
-          end,
-          "fallback",
-        },
+        ["<Tab>"] = { "select_next", "fallback" },
         ["<S-Tab>"] = { "select_prev", "fallback" },
 
-        ["<C-space>"] = { "show", "fallback" },
+        ["<cr>"] = { "select_and_accept", "fallback" },
 
-        ["<cr>"] = { "select_and_accept" },
-        ["<C-n>"] = { "select_next", "fallback" },
-        ["<C-p>"] = { "select_prev", "fallback" },
+        ["<C-n>"] = { "snippet_forward", "fallback" },
+        ["<C-p>"] = { "snippet_backward", "fallback" },
+
         ["<Right>"] = { "select_next", "fallback" },
         ["<Left>"] = { "select_prev", "fallback" },
 

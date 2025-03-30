@@ -40,56 +40,56 @@ do
 
   vim.keymap.set(
     "v",
-    "<leader>r",
+    "\\r",
     search_pattern(search_s, [[<c-r>=escape(@s,'/\')<cr>/]]),
     opts("replace currently highlighted text with new text")
   )
 
   vim.keymap.set(
     "v",
-    "<leader>R",
+    "\\R",
     search_pattern(search_w, [[\<<c-r>=escape(@s,'/\')<cr>\>/]]),
     opts("replace currently highlighted text with new text (whole)")
   )
 
   vim.keymap.set(
     "v",
-    "<leader>i",
+    "\\i",
     search_pattern(search_s, [[\ze<c-r>=escape(@s,'/\')<cr>/]]),
     opts("insert new text before currently highlighted text")
   )
 
   vim.keymap.set(
     "v",
-    "<leader>I",
+    "\\I",
     search_pattern(search_w, [[\ze\<<c-r>=escape(@s,'/\')<cr>\>/]]),
     opts("insert new text after currently highlighted text (whole)")
   )
 
   vim.keymap.set(
     "v",
-    "<leader>a",
+    "\\a",
     search_pattern(search_s, [[<c-r>=escape(@s,'/\')<cr>\zs/]]),
     opts("append new text after currently highlighted text")
   )
 
   vim.keymap.set(
     "v",
-    "<leader>A",
+    "\\A",
     search_pattern(search_w, [[\<<c-r>=escape(@s,'/\')<cr>\zs\>/]]),
     opts("append new text after currently highlighted text (whole word")
   )
 
   vim.keymap.set(
     "v",
-    "<leader>e",
+    "\\e",
     search_pattern(search_s, [[<c-r>=escape(@s,'/\')<cr>/<c-r>=escape(@s,'/\')<cr>]]),
     opts("edit currently highlighted text")
   )
 
   vim.keymap.set(
     "v",
-    "<leader>E",
+    "\\E",
     search_pattern(search_w, [[\<<c-r>=escape(@s,'/\')<cr>\>/<c-r>=escape(@s,'/\')<cr>]]),
     opts("edit currently highlighted text (whole)")
   )
