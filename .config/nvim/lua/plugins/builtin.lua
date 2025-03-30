@@ -212,6 +212,17 @@ return {
         ghost_text = {
           enabled = false,
         },
+        accept = {
+          auto_brackets = {
+            enabled = false,
+            kind_resolution = {
+              enabled = false,
+            },
+            semantic_token_resolution = {
+              enabled = false,
+            },
+          },
+        },
       },
       keymap = {
         preset = "none",
