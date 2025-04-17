@@ -108,3 +108,27 @@ vim.cmd([[
     endfunction
 ]])
 --------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+------------------[ disable <c-l> mapping on terminal open ]--------------------
+--------------------------------------------------------------------------------
+--  https://github.com/LazyVim/LazyVim/issues/4509]
+vim.api.nvim_create_autocmd("TermEnter", {
+  callback = function(ev)
+    vim.keymap.set("t", "<c-l>", "<c-l>", { buffer = ev.buf, nowait = true })
+  end,
+})
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-------------------[ disable autoformat for certan filetypes ]------------------
+--------------------------------------------------------------------------------
+local autoformat_enabled = { "c", "cpp", "glsl", "lua", "python", "rust" }
+
+vim.api.nvim_create_autocmd({ "FileType" }, {
+  pattern = { "*" },
+  callback = function()
+    vim.b.autoformat = vim.tbl_contains(autoformat_enabled, vim.bo.filetype)
+  end,
+})
+--------------------------------------------------------------------------------
