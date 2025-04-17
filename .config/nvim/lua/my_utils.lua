@@ -1,11 +1,16 @@
--- check if a table is used as an array
+--- check if a table is used as an array
+---@param tab table the table to be checked on
+---@return boolean
 local function is_array(tab)
   return #tab > 0 and next(tab, #tab) == nil
 end
 
+-- pre-declare functions
 local print_array_recurse, print_table_recurse
 
--- get arguments of a function
+--- get arguments of a function
+---@param func function
+---@return table
 local function get_args(func)
   local args = {}
   for i = 1, debug.getinfo(func).nparams, 1 do
@@ -14,7 +19,11 @@ local function get_args(func)
   return args
 end
 
--- print array recursively
+--- print array recursively
+---@param prelude string
+---@param arr table the array to be printed
+---@param level number current recurse level
+---@param max_level number max recurse level
 print_array_recurse = function(prelude, arr, level, max_level)
   level = level or 0
   max_level = max_level or -1
@@ -49,7 +58,11 @@ print_array_recurse = function(prelude, arr, level, max_level)
   print(ending)
 end
 
--- print table recursively
+--- print table recursively
+---@param prelude string prelude string to be printed before anything else
+---@param tab table the table to be printed
+---@param level number current recurse level
+---@param max_level number max recurse level
 print_table_recurse = function(prelude, tab, level, max_level)
   level = level or 0
   max_level = max_level or -1
@@ -84,8 +97,13 @@ print_table_recurse = function(prelude, tab, level, max_level)
   print(ending)
 end
 
--- return a string, every element will be converted using built-in tostring() function
-local function array_to_string_simple(arr, sep, prelude, ending)
+--- return a string, every element will be converted using built-in tostring() function
+---@param arr table a table of values
+---@param sep string separator string
+---@param prelude string prelude string to print before anything else
+---@param ending string ending string to print after everything else
+---@return string
+local function arr_to_str(arr, sep, prelude, ending)
   sep = sep or ", "
   prelude = prelude or "["
   ending = ending or "]"
@@ -97,15 +115,21 @@ local function array_to_string_simple(arr, sep, prelude, ending)
   return string.sub(str, 0, string.len(str) - string.len(sep)) .. ending
 end
 
--- print array, element by element (converted using built-in tostring() function)
+--- print array, element by element (converted using built-in tostring() function)
+---@param arr table array
+---@param sep string
+---@param prelude string
+---@param ending string
 local function print_array(arr, sep, prelude, ending)
-  print(array_to_string_simple(arr, sep, prelude, ending))
+  print(arr_to_str(arr, sep, prelude, ending))
 end
 
--- if you don't know what kind of type you want to print, use this function
--- this function will print recursively if the type is a table
--- you should pass the argument as a new table if you want to print multiple things
--- like this : better_print({arg1, arg2}) or better_print({name1=arg1, name2=arg2})
+--- if you don't know what kind of type you want to print, use this function
+--- this function will print recursively if the type is a table
+--- you should pass the argument as a new table if you want to print multiple things
+--- like this : better_print({arg1, arg2}) or better_print({name1=arg1, name2=arg2})
+---@param args any any lua object
+---@param max_level number max recurse level
 local function better_print(args, max_level)
   max_level = max_level or -1
 
@@ -133,6 +157,8 @@ local function better_print(args, max_level)
   end
 end
 
+--- check if a file exists
+---@param file string file path
 local function file_exist(file)
   -- check file exist
   local file_handler = io.open(file, "r")
@@ -144,17 +170,23 @@ local function file_exist(file)
   end
 end
 
-local function split_string(inputstr, sep)
+--- split string by its separator
+---@param input string
+---@param sep string separator
+---@return table
+local function split_string(input, sep)
   if sep == nil then
     sep = "%s"
   end
   local t = {}
-  for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+  for str in string.gmatch(input, "([^" .. sep .. "]+)") do
     table.insert(t, str)
   end
   return t
 end
 
+--- return nvim version
+---@return string
 local function get_nvim_version()
   local actual_ver = vim.version() or { major = 0, minor = 0, patch = 0 }
 
@@ -162,6 +194,10 @@ local function get_nvim_version()
   return nvim_ver_str
 end
 
+--- check if a valu is in a table
+---@param value any
+---@param array table
+---@return boolean
 local function is_in_table(value, array)
   for _, v in ipairs(array) do
     if v == value then
@@ -171,8 +207,8 @@ local function is_in_table(value, array)
   return false
 end
 
----returns full path to git directory for dir_path or current directory
----stolen from 'lualine.nvim/lua/lualine/components/branch/git_branch.lua'
+--- returns full path to git directory for dir_path or current directory
+--- stolen from 'lualine.nvim/lua/lualine/components/branch/git_branch.lua'
 ---@param dir_path string|nil
 ---@return string|nil
 local function find_git_dir(dir_path)
@@ -226,13 +262,21 @@ local function find_git_dir(dir_path)
   return git_dir
 end
 
+--- check whether the host has internet access
+---@return boolean
+local function has_internet()
+  local ping = [[ping -c 3 8.8.8.8 > /dev/null 2>&1]]
+  return os.execute(ping) == 0
+end
+
 return {
   print = better_print,
   file_exist = file_exist,
   split_string = split_string,
   get_nvim_version = get_nvim_version,
-  array_to_string_simple = array_to_string_simple,
+  arr_to_str = arr_to_str,
   print_array = print_array,
   is_in_table = is_in_table,
   find_git_dir = find_git_dir,
+  has_internet = has_internet,
 }
