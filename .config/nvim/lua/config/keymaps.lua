@@ -32,7 +32,7 @@ do
     "n",
     "*",
     [[:let @/= '\<' . expand('<cword>') . '\>' <bar> set hls <cr>]],
-    opts("override search without jump")
+    opts("Override search without jump")
   )
 
   vim.keymap.set("v", "/", search_s, opts("search highlighted text"))
@@ -41,56 +41,56 @@ do
   vim.keymap.set(
     "v",
     "\\r",
-    search_pattern(search_s, [[<c-r>=escape(@s,'/\')<cr>/]]),
-    opts("replace currently highlighted text with new text")
+    search_pattern(search_s, [[<c-r>=escape(@s,'/\')<cr>/]]), --
+    opts("Replace with new text")
   )
 
   vim.keymap.set(
     "v",
     "\\R",
     search_pattern(search_w, [[\<<c-r>=escape(@s,'/\')<cr>\>/]]),
-    opts("replace currently highlighted text with new text (whole)")
+    opts("Replace with new text (whole)")
   )
 
   vim.keymap.set(
     "v",
     "\\i",
-    search_pattern(search_s, [[\ze<c-r>=escape(@s,'/\')<cr>/]]),
-    opts("insert new text before currently highlighted text")
+    search_pattern(search_s, [[\ze<c-r>=escape(@s,'/\')<cr>/]]), --
+    opts("Insert text before")
   )
 
   vim.keymap.set(
     "v",
     "\\I",
     search_pattern(search_w, [[\ze\<<c-r>=escape(@s,'/\')<cr>\>/]]),
-    opts("insert new text after currently highlighted text (whole)")
+    opts("Insert text before (whole)")
   )
 
   vim.keymap.set(
     "v",
     "\\a",
-    search_pattern(search_s, [[<c-r>=escape(@s,'/\')<cr>\zs/]]),
-    opts("append new text after currently highlighted text")
+    search_pattern(search_s, [[<c-r>=escape(@s,'/\')<cr>\zs/]]), --
+    opts("Append text after")
   )
 
   vim.keymap.set(
     "v",
     "\\A",
-    search_pattern(search_w, [[\<<c-r>=escape(@s,'/\')<cr>\zs\>/]]),
-    opts("append new text after currently highlighted text (whole word")
+    search_pattern(search_w, [[\<<c-r>=escape(@s,'/\')<cr>\zs\>/]]), --
+    opts("Append text after (whole)")
   )
 
   vim.keymap.set(
     "v",
     "\\e",
     search_pattern(search_s, [[<c-r>=escape(@s,'/\')<cr>/<c-r>=escape(@s,'/\')<cr>]]),
-    opts("edit currently highlighted text")
+    opts("Edit text")
   )
 
   vim.keymap.set(
     "v",
     "\\E",
     search_pattern(search_w, [[\<<c-r>=escape(@s,'/\')<cr>\>/<c-r>=escape(@s,'/\')<cr>]]),
-    opts("edit currently highlighted text (whole)")
+    opts("Edit text (whole)")
   )
 end

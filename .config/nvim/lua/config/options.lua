@@ -72,3 +72,4 @@ vim.cmd([[let g:cmake_link_compile_commands = 1]])
 -- lazyvim
 -- -------
 vim.g.snacks_animate = false
+vim.g.ai_cmp = false -- disable completion engine to include ai source
