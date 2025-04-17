@@ -18,6 +18,22 @@ return {
         },
       },
     },
+    keys = {
+      {
+        "<c-\\>",
+        function()
+          Snacks.terminal(nil, { cwd = LazyVim.root() })
+        end,
+        mode = "n",
+        desc = "Open temrinal",
+      },
+      {
+        "<c-\\>",
+        "<cmd>close<cr>",
+        mode = "t",
+        desc = "Hide terminal",
+      },
+    },
   },
 
   {
@@ -75,40 +91,47 @@ return {
       }
 
       local filetype_specific_keybinds = {
-        [1] = {
+        {
           { "c", "h", "cpp", "hpp", "js", "ts" },
           "v",
           "fd",
-          "<Esc>o// clang-format on<Esc>gvO<Esc>O// clang-format off<Esc>gvO",
-          { noremap = true },
+          "<Esc>`<O// clang-format on<Esc>`>o// clang-format off<Esc>`<",
+          { noremap = true, desc = "Add formatting guard" },
         },
-        [2] = {
+        {
+          { "c", "h", "cpp", "hpp", "js", "ts" },
+          "v",
+          "ff",
+          ":s? *// clang-format \\(on\\|off\\)\\n?<cr>:nohlsearch<cr><esc>",
+          { noremap = true, silent = true, desc = "Remove formatting guard" },
+        },
+        {
           { "cpp" },
           "v",
-          "\\c",
-          "xistatic_cast<>()<esc>PF<a",
-          { noremap = true, silent = true },
+          "\\\\c",
+          "xistatic_cast<>()<esc>P`[2<left>i",
+          { noremap = true, desc = "Static cast" },
         },
-        [3] = {
+        {
           { "c", "cpp" },
           "v",
-          "\\C",
-          "xi()<esc>p`[<left>i",
-          { noremap = true, silent = true },
+          "\\\\C",
+          "xi()()<esc>P`[2<left>i",
+          { noremap = true, desc = "C-style cast" },
         },
-        [4] = {
+        {
           { "cpp" },
           "v",
-          "\\m",
-          "xistd::move()<esc>Pw",
-          { noremap = true, silent = true },
+          "\\\\m",
+          "xistd::move()<esc>P<right>",
+          { noremap = true, desc = "std::move highlighted text" },
         },
-        [5] = {
+        {
           { "cpp" },
           "v",
-          "\\f",
+          "\\\\f",
           "xistd::forward<>()<esc>P`[2<left>i",
-          { noremap = true, silent = true },
+          { noremap = true, desc = "std::forward highlighted text" },
         },
       }
 
@@ -161,8 +184,13 @@ return {
   {
     "stevearc/conform.nvim",
     opts = {
+      default_format_opts = {
+        timeout_ms = 1000,
+        async = true, -- lazyvim is not recommending to set this to true
+      },
       formatters_by_ft = {
         cpp = { "clang-format" },
+        markdown = { "prettier" },
       },
       formatters = {
         ["clang-format"] = {
@@ -197,8 +225,9 @@ return {
               end
             end
 
-            local shell_escapes = " \t\n\\\"'`$()<>;&|*?[#~=%"
-            return { "-style=file:" .. vim.fn.escape(style_file, shell_escapes) }
+            --local shell_escapes = " \t\n\\\"'`$()<>;&|*?[#~=%"
+            --return { "-style=file:" .. vim.fn.escape(style_file, shell_escapes) }
+            return { "-style=file:" .. style_file }
           end,
         },
       },
@@ -206,41 +235,59 @@ return {
   },
 
   {
-    "saghen/blink.cmp",
-    opts = {
-      completion = {
-        ghost_text = {
-          enabled = false,
+    "hrsh7th/nvim-cmp",
+    opts = function(_, opts)
+      local cmp = require("cmp")
+      local auto_select = false
+
+      opts.completion = {
+        completeopt = "menu,menuone,noinsert" .. (auto_select and "" or ",noselect"),
+      }
+      opts.mapping = cmp.mapping.preset.insert({
+        ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+        ["<C-f>"] = cmp.mapping.scroll_docs(4),
+        ["<C-Space>"] = cmp.mapping.complete(),
+        ["<C-e>"] = cmp.mapping.abort(),
+        ["<cr>"] = cmp.mapping.confirm({ select = false }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+        ["<tab>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior, count = 1 }),
+        ["<S-tab>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior, count = 1 }),
+        ["<C-n>"] = function(fallback)
+          return LazyVim.cmp.map({ "snippet_forward" }, fallback)()
+        end,
+        ["<C-p>"] = function(fallback)
+          return LazyVim.cmp.map({ "snippet_backward" }, fallback)()
+        end,
+        ["<a-space>"] = function(fallback)
+          return LazyVim.cmp.map({ "ai_accept", "snippet_forward" }, fallback)()
+        end,
+      })
+      opts.sorting = {
+        comparators = {
+          cmp.config.compare.offset,
+          cmp.config.compare.score,
+          -- cmp.config.compare.exact,
+          -- cmp.config.compare.kind,
+          -- cmp.config.compare.sort_text,
+          -- cmp.config.compare.length,
+          -- cmp.config.compare.order,
         },
-        accept = {
-          auto_brackets = {
-            enabled = false,
-            kind_resolution = {
-              enabled = false,
-            },
-            semantic_token_resolution = {
-              enabled = false,
-            },
-          },
-        },
-      },
-      keymap = {
-        preset = "none",
+      }
+    end,
+  },
 
-        ["<Tab>"] = { "select_next", "fallback" },
-        ["<S-Tab>"] = { "select_prev", "fallback" },
-
-        ["<cr>"] = { "select_and_accept", "fallback" },
-
-        ["<C-n>"] = { "snippet_forward", "fallback" },
-        ["<C-p>"] = { "snippet_backward", "fallback" },
-
-        ["<Right>"] = { "select_next", "fallback" },
-        ["<Left>"] = { "select_prev", "fallback" },
-
-        ["<C-y>"] = { "select_and_accept" },
-        ["<C-e>"] = { "cancel" },
-      },
+  {
+    "akinsho/bufferline.nvim",
+    keys = {
+      -- move to prev/next buffer
+      { "<A-.>", "<cmd>BufferLineCycleNext<cr>", "n", desc = "Go to the next buffer" },
+      { "<A-,>", "<cmd>BufferLineCyclePrev<cr>", "n", desc = "Go to the previous buffer" },
+      { "<C-PageDown>", "<cmd>BufferLineCycleNext<cr>", "n", desc = "Go to the next buffer" },
+      { "<C-PageUp>", "<cmd>BufferLineCyclePrev<cr>", "n", desc = "Go to the previous buffer" },
+      -- move current buffer backwards/forwards
+      { "<A->>", "<cmd>BufferLineMoveNext<cr>", "n", desc = "Move current buffer to the next" },
+      { "<A-<>", "<cmd>BufferLineMovePrev<cr>", "n", desc = "Move current buffer to the previous" },
+      { "<C-S-PageDown>", "<cmd>BufferLineMoveNext<cr>", "n", desc = "Move current buffer to the next" },
+      { "<C-S-PageUp>", "<cmd>BufferLineMovePrev<cr>", "n", desc = "Move current buffer to the previous" },
     },
   },
 }
