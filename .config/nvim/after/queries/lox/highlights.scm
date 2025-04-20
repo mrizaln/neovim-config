@@ -13,7 +13,6 @@
   "super"
   "var"
   "while"
-  (this)
 ] @keyword
 
 ; Operators
@@ -44,6 +43,8 @@
   "."
   ";"
 ] @punctuation
+
+(this) @variable.builtin
 
 ; Literals
 (string) @string
