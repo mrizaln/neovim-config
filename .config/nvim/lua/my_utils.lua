@@ -1,5 +1,5 @@
---- check if a table is used as an array
----@param tab table the table to be checked on
+--- Check if a table is used as an array.
+---@param tab table The table to be checked on.
 ---@return boolean
 local function is_array(tab)
   return #tab > 0 and next(tab, #tab) == nil
@@ -8,7 +8,7 @@ end
 -- pre-declare functions
 local print_array_recurse, print_table_recurse
 
---- get arguments of a function
+--- Get arguments of a function.
 ---@param func function
 ---@return table
 local function get_args(func)
@@ -19,11 +19,11 @@ local function get_args(func)
   return args
 end
 
---- print array recursively
----@param prelude string
----@param arr table the array to be printed
----@param level number current recurse level
----@param max_level number max recurse level
+--- Print array recursively.
+---@param prelude string Prelude string to be printed before anything else.
+---@param arr table The array to be printed.
+---@param level number Current recurse level.
+---@param max_level number Max recurse level.
 print_array_recurse = function(prelude, arr, level, max_level)
   level = level or 0
   max_level = max_level or -1
@@ -58,11 +58,11 @@ print_array_recurse = function(prelude, arr, level, max_level)
   print(ending)
 end
 
---- print table recursively
----@param prelude string prelude string to be printed before anything else
----@param tab table the table to be printed
----@param level number current recurse level
----@param max_level number max recurse level
+--- Print table recursively.
+---@param prelude string Prelude string to be printed before anything else.
+---@param tab table The table to be printed.
+---@param level number Current recurse level.
+---@param max_level number Max recurse level.
 print_table_recurse = function(prelude, tab, level, max_level)
   level = level or 0
   max_level = max_level or -1
@@ -97,11 +97,11 @@ print_table_recurse = function(prelude, tab, level, max_level)
   print(ending)
 end
 
---- return a string, every element will be converted using built-in tostring() function
----@param arr table a table of values
----@param sep string separator string
----@param prelude string prelude string to print before anything else
----@param ending string ending string to print after everything else
+--- Return a string, every element will be converted using built-in tostring() function.
+---@param arr table A table of values.
+---@param sep string Separator string.
+---@param prelude string Prelude string to print before anything else.
+---@param ending string Ending string to print after everything else.
 ---@return string
 local function arr_to_str(arr, sep, prelude, ending)
   sep = sep or ", "
@@ -115,21 +115,23 @@ local function arr_to_str(arr, sep, prelude, ending)
   return string.sub(str, 0, string.len(str) - string.len(sep)) .. ending
 end
 
---- print array, element by element (converted using built-in tostring() function)
----@param arr table array
----@param sep string
----@param prelude string
----@param ending string
+--- Print array, element by element (converted using built-in tostring() function).
+---@param arr table A table of values.
+---@param sep string Separator string.
+---@param prelude string Prelude string to print before anything else.
+---@param ending string Ending string to print after everything else.
 local function print_array(arr, sep, prelude, ending)
   print(arr_to_str(arr, sep, prelude, ending))
 end
 
---- if you don't know what kind of type you want to print, use this function
---- this function will print recursively if the type is a table
---- you should pass the argument as a new table if you want to print multiple things
---- like this : better_print({arg1, arg2}) or better_print({name1=arg1, name2=arg2})
----@param args any any lua object
----@param max_level number max recurse level
+--- If you don't know what kind of type you want to print, use this function. This function will 
+--- print recursively if the type is a table. You should pass the argument as a new table if you 
+--- want to print multiple things.
+---
+--- Example: better_print({arg1, arg2}) or better_print({name1=arg1, name2=arg2})
+---
+---@param args any Any lua object.
+---@param max_level number Max recurse level (nil, 0, negative number = no limit).
 local function better_print(args, max_level)
   max_level = max_level or -1
 
@@ -157,8 +159,8 @@ local function better_print(args, max_level)
   end
 end
 
---- check if a file exists
----@param file string file path
+--- Check if a file exists.
+---@param file string File path.
 local function file_exist(file)
   -- check file exist
   local file_handler = io.open(file, "r")
@@ -170,9 +172,9 @@ local function file_exist(file)
   end
 end
 
---- split string by its separator
----@param input string
----@param sep string separator
+--- Split string by its separator.
+---@param input string String to be split.
+---@param sep string Separator.
 ---@return table
 local function split_string(input, sep)
   if sep == nil then
@@ -185,7 +187,7 @@ local function split_string(input, sep)
   return t
 end
 
---- return nvim version
+--- Return nvim version string as <major>.<minor>.<patch>.
 ---@return string
 local function get_nvim_version()
   local actual_ver = vim.version() or { major = 0, minor = 0, patch = 0 }
@@ -194,7 +196,7 @@ local function get_nvim_version()
   return nvim_ver_str
 end
 
---- check if a valu is in a table
+--- Check if a value is in a table.
 ---@param value any
 ---@param array table
 ---@return boolean
@@ -207,8 +209,10 @@ local function is_in_table(value, array)
   return false
 end
 
---- returns full path to git directory for dir_path or current directory
---- stolen from 'lualine.nvim/lua/lualine/components/branch/git_branch.lua'
+--- Returns full path to git directory for dir_path or current directory.
+---
+--- Stolen from 'lualine.nvim/lua/lualine/components/branch/git_branch.lua'
+---
 ---@param dir_path string|nil
 ---@return string|nil
 local function find_git_dir(dir_path)
@@ -262,11 +266,43 @@ local function find_git_dir(dir_path)
   return git_dir
 end
 
---- check whether the host has internet access
+--- Check whether the host has internet access.
 ---@return boolean
 local function has_internet()
   local ping = [[ping -c 3 8.8.8.8 > /dev/null 2>&1]]
   return os.execute(ping) == 0
+end
+
+-- [ toggle background color to and from 'none' (original terminal color) ]
+-- stylua: ignore
+local background_groups = {
+  "Normal", "NormalNC", "Comment", "Constant", "Special", "Identifier", "Statement", "PreProc",
+  "Type", "Underlined", "Todo", "String", "Function", "Conditional", "Repeat", "Operator",
+  "Structure", "LineNr", "NonText", "SignColumn", "CursorLine", "CursorLineNr", "StatusLine",
+  "StatusLineNC", "EndOfBuffer",
+}
+local configured_background = {}
+local configured_background_is_transparent = false
+
+--- Toggle Neovim UI's background transparency.
+local function toggle_transparent_bg()
+  if vim.tbl_isempty(configured_background) then
+    for _, group in ipairs(background_groups) do
+      configured_background[group] = vim.api.nvim_get_hl(0, { name = group }).bg
+    end
+  end
+
+  configured_background_is_transparent = not configured_background_is_transparent
+
+  if configured_background_is_transparent then
+    for _, group in ipairs(background_groups) do
+      vim.api.nvim_set_hl(0, group, { bg = "none" })
+    end
+  else
+    for _, group in ipairs(background_groups) do
+      vim.api.nvim_set_hl(0, group, { bg = configured_background[group] })
+    end
+  end
 end
 
 return {
@@ -279,4 +315,5 @@ return {
   is_in_table = is_in_table,
   find_git_dir = find_git_dir,
   has_internet = has_internet,
+  toggle_transparent_bg = toggle_transparent_bg,
 }
