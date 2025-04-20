@@ -25,7 +25,7 @@ return {
           Snacks.terminal(nil, { cwd = LazyVim.root() })
         end,
         mode = "n",
-        desc = "Open temrinal",
+        desc = "Open terminal",
       },
       {
         "<c-\\>",
@@ -42,7 +42,7 @@ return {
       opts.inlay_hints = { enabled = false }
       opts.servers = {
         clangd = {
-          mason = false,
+          mason = true,
           cmd = {
             "clangd",
             -- by default, clang-tidy use -checks=clang-diagnostic-*,clang-analyzer-*
@@ -59,7 +59,7 @@ return {
             -- "--ranking-model=decision_forest",
             "--ranking-model=heuristics",
             -- "--completion-style=detailed",
-            -- "--function-arg-placeholders=true", -- not working for some reason
+            -- "--function-arg-placeholders=true",
             -- "--all-scopes-completion=false", -- turn off annoying completion from other scopes
           },
         },
@@ -95,7 +95,7 @@ return {
           { "c", "h", "cpp", "hpp", "js", "ts" },
           "v",
           "fd",
-          "<Esc>`<O// clang-format on<Esc>`>o// clang-format off<Esc>`<",
+          "<Esc>`<O// clang-format off<Esc>`>o// clang-format on<Esc>`<",
           { noremap = true, desc = "Add formatting guard" },
         },
         {
@@ -154,15 +154,15 @@ return {
 
   {
     "nvim-treesitter/nvim-treesitter",
-    opts = {
-      highlight = {
+    opts = function(_, opts)
+      opts.highlight = {
         enable = true,
-      },
-      indent = {
+      }
+      opts.indent = {
         enable = true,
         disable = { "c", "cpp" },
-      },
-      ensure_installed = {
+      }
+      opts.ensure_installed = {
         "bash",
         "c",
         "cmake",
@@ -177,26 +177,51 @@ return {
         "sql",
         "typescript",
         "vim",
-      },
-    },
+      }
+
+      -- config for extra parser
+      local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+
+      parser_config["cpp2"] = {
+        install_info = {
+          -- url = "https://github.com/APokorny/tree-sitter-cpp2",    -- erroring
+          -- url = "https://github.com/uyha/tree-sitter-cpp2",        -- no highlight
+          url = "https://github.com/tsoj/tree-sitter-cpp2",
+          files = { "src/parser.c", "src/scanner.c" },
+          branch = "main",
+        },
+        filetype = "cpp2", -- if filetype does not match the parser name
+      }
+
+      parser_config["lox"] = {
+        install_info = {
+          url = "https://github.com/ajeetdsouza/tree-sitter-lox",
+          files = { "src/parser.c" },
+          branch = "main",
+        },
+        filetype = "lox",
+      }
+    end,
   },
 
   {
     "stevearc/conform.nvim",
     opts = {
       default_format_opts = {
+        formatters = { "sed" }, -- custom formatter, defined below
         timeout_ms = 1000,
         async = true, -- lazyvim is not recommending to set this to true
       },
       formatters_by_ft = {
         cpp = { "clang-format" },
         markdown = { "prettier" },
+        cmake = { "gersemi" },
       },
       formatters = {
         ["clang-format"] = {
           prepend_args = function(bufnr)
             local style_file = nil
-            local file_exist = vim.g.my_utils.file_exist
+            local file_exist = MyUtils.file_exist
 
             -- project mode, check current buffer
             local workspaces = vim.lsp.buf.list_workspace_folders()
@@ -229,6 +254,11 @@ return {
             --return { "-style=file:" .. vim.fn.escape(style_file, shell_escapes) }
             return { "-style=file:" .. style_file }
           end,
+        },
+        -- sed formatter will remove trailing whitespace
+        ["sed"] = {
+          command = "sed",
+          args = { "s/[ \t]*$//" },
         },
       },
     },
