@@ -2,6 +2,15 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 
+-- navigation keymaps
+do
+  -- move split panes
+  vim.keymap.set("n", "<A-h>", "<c-w>H", { desc = "Move split pane left" })
+  vim.keymap.set("n", "<A-j>", "<c-w>J", { desc = "Move split pane down" })
+  vim.keymap.set("n", "<A-k>", "<c-w>K", { desc = "Move split pane up" })
+  vim.keymap.set("n", "<A-l>", "<c-w>L", { desc = "Move split pane right" })
+end
+
 -- search related keymaps
 do
   local search_s = [["sy:let @/= '\V' . escape(@s, '/\')<CR>:set hls<CR>]]
